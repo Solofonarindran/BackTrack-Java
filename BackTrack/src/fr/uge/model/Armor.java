@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate> coordonates, 
-	int cost, int defensePoint) implements Item{
+	int cost, int defensePoint) implements Item, ItemTreasure{
 	public Armor {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
