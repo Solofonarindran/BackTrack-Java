@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Objects;
 
 public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate> coordonates, 
-	int cost, int defensePoint) implements Item, ItemTreasure{
+	int cost, int defensePoint, String urlImage) implements Item, ItemTreasure{
 	public Armor {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(rarity);
+		Objects.requireNonNull(urlImage);
 		if(cost < 0) {
 			throw new IllegalArgumentException("cost valeur négatif inacceptable");
 		}
