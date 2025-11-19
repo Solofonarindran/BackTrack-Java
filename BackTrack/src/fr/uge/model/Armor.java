@@ -3,7 +3,8 @@ package fr.uge.model;
 import java.util.List;
 import java.util.Objects;
 
-public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate> coordonates, 
+// references sont des models de coordonnées
+public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate> references, 
 	int cost, int defensePoint, String urlImage) implements Item, ItemTreasure{
 	public Armor {
 		Objects.requireNonNull(name);
