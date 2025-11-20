@@ -21,7 +21,13 @@ public class BackPack {
 		coordonates = new HashMap<Coordonate,Map<String,Boolean>>();
 	}
 	
+	// Exemple de structure de données
 	
+	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
+	//																			 { false (vérouillé)}
+	
+	//													 dispo			: { true (sans object) }
+	//																			: { false 						 }
 	private boolean isAccepted(Item equipement, Coordonate coordonate) {
 		
 		Objects.requireNonNull(equipement);
