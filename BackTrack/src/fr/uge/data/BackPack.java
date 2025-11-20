@@ -24,19 +24,19 @@ public class BackPack {
 	// Exemple de structure de données
 	
 	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
-	//																			 { false (vérouillé)}
+	//								 { false (vérouillé)}
 	
-	//													 dispo			: { true (sans object) }
-	//																			: { false 						 }
+	//					 dispo		: { true (sans object) }
+	//								: { false 						 }
 	private boolean isAccepted(Item equipement, Coordonate coordonate) {
 		
 		Objects.requireNonNull(equipement);
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
-																 .filter(e->e.getKey().equals(coordonate) && e.getValue().get("unlocked"))
-																 .map(e->e.getValue().get("dispo"))
-																 .findFirst()
-																 .orElseGet(()->false);
+									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get("unlocked"))
+									 .map(e->e.getValue().get("dispo"))
+								     .findFirst()
+									 .orElseGet(()->false);
 	}
 	
 	public void addEquipement(Item equipement) {
