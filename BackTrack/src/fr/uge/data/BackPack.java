@@ -31,7 +31,9 @@ public class BackPack {
 	//														: { false 						 }
 	
 	
-
+ 
+	// mis à jour de la disponibilité de coordonées
+	// value true si dispo
 	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
 		Objects.requireNonNull(coordonate);
 		coordonates.entrySet().stream()
@@ -41,6 +43,7 @@ public class BackPack {
 													
 	}
 	
+	// savoir si la place de coordonné peut contenir un équipement
 	private boolean isAccepted(Item equipement, Coordonate coordonate) {
 		
 		Objects.requireNonNull(equipement);
@@ -53,6 +56,7 @@ public class BackPack {
 	}
 	
 	
+	// ajout d'un équipement 
 	public void addEquipement(Item equipement,Coordonate coordonate) {
 		// coordonate ( données ou coordonnées récuperées venant d'interface zen)
 		Objects.requireNonNull(equipement);
