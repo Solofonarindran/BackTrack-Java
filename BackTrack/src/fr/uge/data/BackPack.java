@@ -44,9 +44,7 @@ public class BackPack {
 	}
 	
 	// savoir si la place de coordonné peut contenir un équipement
-	private boolean isAccepted(Item equipement, Coordonate coordonate) {
-		
-		Objects.requireNonNull(equipement);
+	private boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
 									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get("unlocked"))
@@ -65,7 +63,7 @@ public class BackPack {
 		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
 	
 		var isAccepted = coordonateAbsolute.stream()
-													.map(c->isAccepted(equipement, c))
+													.map(c->isAccepted(c))
 													.noneMatch(b->!b); // vérifie si aucune réponse est false
 		
 		if(isAccepted) {
