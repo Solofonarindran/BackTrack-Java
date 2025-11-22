@@ -25,10 +25,22 @@ public class BackPack {
 	// Exemple de structure de données
 	
 	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
-	//								 { false (vérouillé)}
+	//															 { false (vérouillé)}
 	
-	//					 dispo		: { true (sans object) }
-	//								: { false 						 }
+	//									 dispo		: { true (sans object) }
+	//														: { false 						 }
+	
+	
+
+	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
+		Objects.requireNonNull(coordonate);
+		coordonates.entrySet().stream()
+													.filter(e->e.getKey().equals(coordonate))
+													.findFirst()
+													.ifPresent(e->e.getValue().put("dispo", value));
+													
+	}
+	
 	private boolean isAccepted(Item equipement, Coordonate coordonate) {
 		
 		Objects.requireNonNull(equipement);
@@ -39,6 +51,7 @@ public class BackPack {
 								   .findFirst()
 									 .orElseGet(()->false);
 	}
+	
 	
 	public void addEquipement(Item equipement,Coordonate coordonate) {
 		// coordonate ( données ou coordonnées récuperées venant d'interface zen)
