@@ -59,17 +59,16 @@ public class BackPack {
 		Objects.requireNonNull(coordonate);	
 		var references = equipement.references();
 		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
-		// crée une copie pour manipuler 
-		var coordonateAbsoluteCopy = new ArrayList<Coordonate>(coordonateAbsolute);
-		var isAccepted = coordonateAbsoluteCopy.stream()
+	
+		var isAccepted = coordonateAbsolute.stream()
 													.map(c->isAccepted(equipement, c))
 													.noneMatch(b->!b); // vérifie si aucune réponse est false
 		
 		if(isAccepted) {
 			equipments.put(equipement, coordonateAbsolute);
+			coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, true));
 		}
-		
-													
+										
 	}
 	
 }
