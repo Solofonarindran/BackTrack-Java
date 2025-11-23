@@ -1,7 +1,5 @@
 package fr.uge.data;
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +9,13 @@ import fr.uge.model.Coordonate;
 import fr.uge.model.Item;
 
 public class BackPack {
+	
 	private final HashMap<Item, List<Coordonate>> equipments ;
-	
-	// ce map contient les places (coordonnées) qui sont déverouillés (unlock) et dispo
-	
+	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
 	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
+	
+	private static final String UNCLOCKED = "uncloked";
+	private static final String DISPO = "dispo";
 	
 	public BackPack() {
 		equipments = new HashMap<Item, List<Coordonate>>();
@@ -38,7 +38,7 @@ public class BackPack {
 		coordonates.entrySet().stream()
 													.filter(e->e.getKey().equals(coordonate))
 													.findFirst()
-													.ifPresent(e->e.getValue().put("unclocked", true));
+													.ifPresent(e->e.getValue().put(UNCLOCKED, true));
 	}
 	
 	// mis à jour de la disponibilité de coordonées
@@ -48,7 +48,7 @@ public class BackPack {
 		coordonates.entrySet().stream()
 													.filter(e->e.getKey().equals(coordonate))
 													.findFirst()
-													.ifPresent(e->e.getValue().put("dispo", value));
+													.ifPresent(e->e.getValue().put(DISPO, value));
 													
 	}
 	
@@ -56,8 +56,8 @@ public class BackPack {
 	private boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
-									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get("unlocked"))
-									 .map(e->e.getValue().get("dispo"))
+									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNCLOCKED))
+									 .map(e->e.getValue().get(DISPO))
 								   .findFirst()
 									 .orElseGet(()->false);
 	}
