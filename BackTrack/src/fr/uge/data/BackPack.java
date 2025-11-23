@@ -31,7 +31,16 @@ public class BackPack {
 	//														: { false 						 }
 	
 	
- 
+ //déverouillé la case (coordonées)
+	// mettre valeur true
+	public void unclockedCoordonate(Coordonate coordonate) {
+		Objects.requireNonNull(coordonate);
+		coordonates.entrySet().stream()
+													.filter(e->e.getKey().equals(coordonate))
+													.findFirst()
+													.ifPresent(e->e.getValue().put("unclocked", true));
+	}
+	
 	// mis à jour de la disponibilité de coordonées
 	// value true si dispo
 	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
