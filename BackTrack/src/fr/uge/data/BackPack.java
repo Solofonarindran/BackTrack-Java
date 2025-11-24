@@ -25,19 +25,19 @@ public class BackPack {
 	// Exemple de structure de données
 	
 	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
-	//															 { false (vérouillé)}
+	//							      { false (vérouillé)}
 	
-	//									 dispo		: { true (sans object) }
-	//														: { false 						 }
+	//					 dispo		: { true (sans object) }
+	//								: { false 						 }
 	
 	
 
 	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
 		Objects.requireNonNull(coordonate);
 		coordonates.entrySet().stream()
-													.filter(e->e.getKey().equals(coordonate))
-													.findFirst()
-													.ifPresent(e->e.getValue().put("dispo", value));
+							  .filter(e->e.getKey().equals(coordonate))
+							  .findFirst()
+							  .ifPresent(e->e.getValue().put("dispo", value));
 													
 	}
 	
@@ -48,7 +48,7 @@ public class BackPack {
 		return coordonates.entrySet().stream()
 									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get("unlocked"))
 									 .map(e->e.getValue().get("dispo"))
-								   .findFirst()
+								     .findFirst()
 									 .orElseGet(()->false);
 	}
 	
@@ -61,8 +61,8 @@ public class BackPack {
 		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
 	
 		var isAccepted = coordonateAbsolute.stream()
-													.map(c->isAccepted(equipement, c))
-													.noneMatch(b->!b); // vérifie si aucune réponse est false
+										    .map(c->isAccepted(equipement, c))
+											.noneMatch(b->!b); // vérifie si aucune réponse est false
 		
 		if(isAccepted) {
 			equipments.put(equipement, coordonateAbsolute);
