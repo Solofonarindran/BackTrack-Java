@@ -71,10 +71,7 @@ public class BackPack {
 		var references = equipement.references();
 		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
 	
-		var isAccepted = coordonateAbsolute.stream()
-
-													.map(c->isAccepted(c))
-													.noneMatch(b->!b); // vérifie si aucune réponse est false
+		var isAccepted = coordonateAbsolute.stream().map(c->isAccepted(c)).noneMatch(b->!b); // vérifie si aucune réponse est false
 
 		if(isAccepted) {
 			equipments.put(equipement, coordonateAbsolute);
