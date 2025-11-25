@@ -2,8 +2,10 @@ package fr.uge.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import fr.uge.model.Coordonate;
+import fr.uge.model.Item;
 
 public class ItemRotation {
 	
@@ -24,5 +26,10 @@ public class ItemRotation {
 			
 			rotated.forEach(c->normalised.add(new Coordonate(c.x()-minX, c.y()- minY)));
 			return normalised;
+	}
+	
+	private boolean canRotate(Item item ) {
+		Objects.requireNonNull(item);
+		return item.rotate();
 	}
 }
