@@ -25,10 +25,10 @@ public class BackPack {
 	// Exemple de structure de données
 	
 	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
-	//															 { false (vérouillé)}
+	//							      { false (vérouillé)}
 	
-	//									 dispo		: { true (sans object) }
-	//														: { false 						 }
+	//					 dispo		: { true (sans object) }
+	//								: { false 						 }
 	
 	
  //déverouillé la case (coordonées)
@@ -49,6 +49,7 @@ public class BackPack {
 													.filter(e->e.getKey().equals(coordonate))
 													.findFirst()
 													.ifPresent(e->e.getValue().put(DISPO, value));
+
 													
 	}
 	
