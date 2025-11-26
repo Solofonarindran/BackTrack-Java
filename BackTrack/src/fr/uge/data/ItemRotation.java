@@ -64,4 +64,5 @@ public class ItemRotation {
     return patternMatching(item, coordinates, newCoordinates);
 		
 	}
+	
 }
