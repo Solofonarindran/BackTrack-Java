@@ -50,14 +50,13 @@ public class BackPack {
 													.findFirst()
 													.ifPresent(e->e.getValue().put(DISPO, value));
 
-													
 	}
 	
 	// savoir si la place de coordonné peut contenir un équipement
 	private boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
-									 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNCLOCKED))
+		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNCLOCKED))
 									 .map(e->e.getValue().get(DISPO))
 								   .findFirst()
 									 .orElseGet(()->false);
@@ -72,10 +71,8 @@ public class BackPack {
 		var references = equipement.references();
 		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
 	
-		var isAccepted = coordonateAbsolute.stream()
-													.map(c->isAccepted(c))
-													.noneMatch(b->!b); // vérifie si aucune réponse est false
-		
+		var isAccepted = coordonateAbsolute.stream().map(c->isAccepted(c)).noneMatch(b->!b); // vérifie si aucune réponse est false
+
 		if(isAccepted) {
 			equipments.put(equipement, coordonateAbsolute);
 			coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, true));
