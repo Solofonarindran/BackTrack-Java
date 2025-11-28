@@ -53,6 +53,8 @@ public class BackPack {
 	}
 	
 	// savoir si la place de coordonné peut contenir un équipement
+	// check d'une seule coordonnée
+	// l'ensemble des coordonées d'un item est checké dans le méthode addEquipement (var isAccepted)
 	private boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
