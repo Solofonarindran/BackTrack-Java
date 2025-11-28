@@ -12,8 +12,11 @@ public class Hero {
 	
 	//Statistiques de combat
 	//Energie disponible (3 par tour en combat), 
-	private int energy; // On ne peut pas le mettre final ( méthod useEnergy) 
-	private final int manaPoints; // Point mana disponibles
+	//On ne peut pas le mettre final ( méthod useEnergy) 
+	private int energy; 
+	
+  //On ne peut pas le mettre final ( méthod useMana) 
+	private int manaPoints; // Point mana disponibles
 	private final int protection; // POint de protection temporaire
 	
 	//inventaire
@@ -95,5 +98,13 @@ public class Hero {
 	// en valeur max du point de l'energy
 	public Hero resetEnergy() {
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
+	}
+	
+	private boolean useMana(int cost) {
+		if(manaPoints >= cost) {
+			manaPoints-= cost;
+			return true;
+		}
+		return false;
 	}
 }
