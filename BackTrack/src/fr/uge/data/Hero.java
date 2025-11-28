@@ -72,5 +72,10 @@ public class Hero {
 		var newProtection = protection + amount;
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
 	}
+	
+	// réinitialisé la protection
+	public Hero resetProtection() {
+		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, 0, backPack, keys);
+	}
 
 }
