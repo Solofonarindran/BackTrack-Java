@@ -36,5 +36,27 @@ public class Hero {
 		this.keys = keys;
 	}
 	
+	// Inflige des dégats au joueur
+	
+	public Hero takeDamage(int damage) { // On changera le paramètre damage par un item pour garder l'encapsulation
+		if(damage < 0) {
+			throw new IllegalArgumentException("dégât doit être valeur positif");
+		}
+		var newProtection = 0;
+		var restDamage = damage;	
+	  // si le Hero a encore de point de protection , il l'utilise
+		if(protection > 0) {
+			if(protection >= damage) {
+				newProtection = protection - damage;
+				return new Hero(healthPoints,maxHealthPoints,level,experience, maxEnergy, energy,manaPoints,newProtection,backPack,keys);
+			}else {
+				restDamage = damage - protection;
+			}
+		}
+	  // si non le dégât s'implique directement au point de vie (healthPoint) de 
+		var newHealthPoints = Math.max(0, healthPoints - restDamage);
+		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
+	}
+	
 
 }
