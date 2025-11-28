@@ -91,4 +91,9 @@ public class Hero {
 		return false;
 	}
 	
+	//réinitialise le point de l'energy
+	// en valeur max du point de l'energy
+	public Hero resetEnergy() {
+		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
+	}
 }
