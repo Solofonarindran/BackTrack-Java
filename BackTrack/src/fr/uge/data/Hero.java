@@ -107,4 +107,12 @@ public class Hero {
 		}
 		return false;
 	}
+	
+	//incrémenter la valeur de mana
+	public Hero increaseMana(int amount) {
+		var newManaPoints = manaPoints + amount;
+		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, newManaPoints, protection, backPack, keys);
+	}
+	
+	
 }
