@@ -11,7 +11,8 @@ public class Hero {
 	private final int maxEnergy ;
 	
 	//Statistiques de combat
-	private final int energy; // Energie disponible (3 par tour en combat)
+	//Energie disponible (3 par tour en combat), 
+	private int energy; // On ne peut pas le mettre final ( méthod useEnergy) 
 	private final int manaPoints; // Point mana disponibles
 	private final int protection; // POint de protection temporaire
 	
@@ -77,5 +78,17 @@ public class Hero {
 	public Hero resetProtection() {
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, 0, backPack, keys);
 	}
-
+	
+	
+	//checker si un item peu utiliser grâce au point de l'energie
+	// si oui , décrementer le point return true
+	// si non , return false
+	private boolean useEnergy(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
+		if(energy >= amount) {
+			energy -= amount;
+			return true;
+		}
+		return false;
+	}
+	
 }
