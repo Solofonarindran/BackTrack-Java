@@ -67,5 +67,10 @@ public class Hero {
 		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys);
 	}
 	
+	// méthode pour incrémenter la protection 
+	public Hero addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
+		var newProtection = protection + amount;
+		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
+	}
 
 }
