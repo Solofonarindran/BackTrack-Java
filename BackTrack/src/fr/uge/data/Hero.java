@@ -58,5 +58,14 @@ public class Hero {
 		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
 	}
 	
+	// méthode pour soigner le joueur 
+	public Hero heal(int amount) {
+		if(amount < 0) {
+			throw new IllegalArgumentException("Le soin ne peut pas être négatif");
+		}
+		var newHealthPoints = Math.min(maxHealthPoints, healthPoints + amount);
+		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys);
+	}
+	
 
 }
