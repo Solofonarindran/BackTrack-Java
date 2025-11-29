@@ -153,4 +153,19 @@ public class Hero {
 	public Hero addKey() {
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys ++ );
 	}
+	
+	@Override
+	public String toString() {
+		var str = "\n========== STATISTIQUES DU HÉROS ==========" +
+							"❤️  Vie        : " + healthPoints + "/" + maxHealthPoints +
+							"⚡ Énergie    : " + energy + "/" + maxEnergy + 
+							"💙 Mana       : " + manaPoints + "/" + manaPoints +
+							"🛡️  Protection : " + protection +
+							"⭐ Niveau     : " + level +
+							"✨ Expérience : " + experience + "/" + getExperienceForNextLevel() +
+						
+							"🔑 Clés       : " + keys +
+							"==========================================\n";
+		return str;
+	}
 }
