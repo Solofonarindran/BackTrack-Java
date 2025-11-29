@@ -21,7 +21,7 @@ public class Hero {
 	
 	//inventaire
 	private final BackPack backPack ;
-	private final int keys; //
+	private int keys; //
 	
 	public Hero(int healthPoints,int maxHealthPoints, int level, int experience,
 							int maxEnergy, int energy, int manaPoints, int protection, BackPack backPack, int keys) {
@@ -137,5 +137,15 @@ public class Hero {
 		while(experience >= getExperienceForNextLevel()) {
 			levelUp();
 		}
+	}
+	
+	
+	// on va l'utiliser pour déverouiller l'un des salles
+	public boolean useKey() {
+		if(keys > 0) {
+			keys --;
+			return true;
+		}
+		return false;
 	}
 }
