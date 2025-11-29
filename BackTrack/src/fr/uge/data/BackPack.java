@@ -16,7 +16,7 @@ public class BackPack {
 	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
 	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
 	
-	private static final String UNCLOCKED = "uncloked";
+	private static final String UNLOCKED = "unloked";
 	private static final String DISPO = "dispo";
 	
 	private static final int MAX_WIDTH = 7;
@@ -46,7 +46,7 @@ public class BackPack {
 			intStreamHeight.forEach(y->{
 				var coord = new Coordonate(x, y);
 				var state = new HashMap<String,Boolean>();
-				state.put(UNCLOCKED, true);
+				state.put(UNLOCKED, true);
 				state.put(DISPO, true);
 				
 				coordonates.put(coord, state);
@@ -59,7 +59,7 @@ public class BackPack {
 		coordonates.entrySet().stream()
 													.filter(e->e.getKey().equals(coordonate))
 													.findFirst()
-													.ifPresent(e->e.getValue().put(UNCLOCKED, true));
+													.ifPresent(e->e.getValue().put(UNLOCKED, true));
 	}
 	
 	// mis à jour de la disponibilité de coordonées
@@ -79,7 +79,7 @@ public class BackPack {
 	private boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
-		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNCLOCKED))
+		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
 									 .map(e->e.getValue().get(DISPO))
 								   .findFirst()
 									 .orElseGet(()->false);
