@@ -54,12 +54,22 @@ public class BackPack {
 		});
 	}
 	
-	public void unclockedCoordonate(Coordonate coordonate) {
+//	public void unlockedCoordonate(Coordonate coordonate) {
+//		Objects.requireNonNull(coordonate);
+//		coordonates.entrySet().stream()
+//													.filter(e->e.getKey().equals(coordonate))
+//													.findFirst()
+//													.ifPresent(e->e.getValue().put(UNLOCKED, true));
+//	}
+	
+	
+	// cette méthode déverouille une case du sac.
+	// déverouille signifie aussi de plus qu'il est dispo = true
+	public void unlockedCoordonate(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
-		coordonates.entrySet().stream()
-													.filter(e->e.getKey().equals(coordonate))
-													.findFirst()
-													.ifPresent(e->e.getValue().put(UNLOCKED, true));
+		var state = coordonates.computeIfAbsent(coordonate, _ ->new HashMap<String, Boolean>());
+		state.put(UNLOCKED, true);
+		state.put(DISPO, true);
 	}
 	
 	// mis à jour de la disponibilité de coordonées
