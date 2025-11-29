@@ -67,6 +67,9 @@ public class BackPack {
 	// déverouille signifie aussi de plus qu'il est dispo = true
 	public void unlockedCoordonate(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
+		if(coordonate.x() > MAX_WIDTH || coordonate.y() > MAX_HEIGHT) {
+			throw new IllegalArgumentException("Débordement du coordonné");
+		}
 		var state = coordonates.computeIfAbsent(coordonate, _ ->new HashMap<String, Boolean>());
 		state.put(UNLOCKED, true);
 		state.put(DISPO, true);
