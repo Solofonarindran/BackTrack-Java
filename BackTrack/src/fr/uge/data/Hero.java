@@ -6,8 +6,8 @@ public class Hero {
 	// statistiques de base
 	private final int healthPoints; //Points de vie actuels
 	private final int maxHealthPoints; // Points de vie maximum
-	private final int level; //Niveau du Héros
-	private	final int experience; // Points d'expérience actuels
+	private int level; //Niveau du Héros
+	private	int experience; // Points d'expérience actuels
 	private final int maxEnergy ;
 	
 	//Statistiques de combat
@@ -114,5 +114,28 @@ public class Hero {
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, newManaPoints, protection, backPack, keys);
 	}
 	
+	//Exemple : niveau 2 = 100 XP, niveau 3 = 200 XP...
+	private int getExperienceForNextLevel() {
+		return level * 100; 
+	}
 	
+	//Monter de niveau
+	private void levelUp() {
+		experience -= getExperienceForNextLevel();
+		level ++;
+		
+		System.out.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
+    System.out.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
+	}
+	// xp point d'expérience qu'on a
+	
+	public void gainExperience(int xp) {
+		if(xp < 0) {
+			throw new IllegalArgumentException(" expérience doit toujours positive");
+		}
+		experience += xp;
+		while(experience >= getExperienceForNextLevel()) {
+			levelUp();
+		}
+	}
 }
