@@ -100,20 +100,24 @@ public class BackPack {
 	
 	
 	// ajout d'un équipement 
-	public void addEquipement(Item equipement,Coordonate coordonate) {
-		// coordonate ( données ou coordonnées récuperées venant d'interface zen)
+	public boolean addEquipement(Item equipement,Coordonate clickedCoord) {
+		// clickedCoord ( données ou coordonnées récuperées venant d'interface zen)
 		Objects.requireNonNull(equipement);
-		Objects.requireNonNull(coordonate);	
+		Objects.requireNonNull(clickedCoord);	
 		var references = equipement.references();
-		var coordonateAbsolute = Coordonate.toAbsolute(references, coordonate);
-	
-		var isAccepted = coordonateAbsolute.stream().map(c->isAccepted(c)).noneMatch(b->!b); // vérifie si aucune réponse est false
+		
+		// voir les coordonées réelles disponible dans le sac suivant les réferences et clickedCoord
+		var coordonateAbsolute = Coordonate.toAbsolute(references, clickedCoord);
+		// vérifie si aucune réponse est false
+		var isAccepted = coordonateAbsolute.stream().allMatch(this::isAccepted); 
 
-		if(isAccepted) {
-			equipments.put(equipement, coordonateAbsolute);
-			coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, true));
+		if(!isAccepted) {
+			return false;
 		}
-										
+		equipments.put(equipement, coordonateAbsolute);
+		coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, false)); // mettre les coordonnées indisponible
+		return true;
 	}
+	
 	
 }
