@@ -148,4 +148,9 @@ public class Hero {
 		}
 		return false;
 	}
+	
+	//ajout du clef
+	public Hero addKey() {
+		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys ++ );
+	}
 }
