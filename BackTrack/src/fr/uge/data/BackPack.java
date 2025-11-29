@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import fr.uge.model.Coordonate;
 import fr.uge.model.Item;
@@ -11,11 +12,15 @@ import fr.uge.model.Item;
 public class BackPack {
 	
 	private final HashMap<Item, List<Coordonate>> equipments ;
+	
 	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
 	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
 	
 	private static final String UNCLOCKED = "uncloked";
 	private static final String DISPO = "dispo";
+	
+	private static final int MAX_WIDTH = 7;
+	private static final int MAX_HEIGHT = 5;
 	
 	public BackPack() {
 		equipments = new HashMap<Item, List<Coordonate>>();
@@ -31,8 +36,24 @@ public class BackPack {
 	//								: { false 						 }
 	
 	
- //déverouillé la case (coordonées)
-	// mettre valeur true
+
+	// initialisation au milieu du sac
+	public void initializeStartingGrid() {
+		var intStreamWidth = IntStream.range(2, 5); // prendre le milieu de x
+		var intStreamHeight = IntStream.range(1, 4); // prendre le milieu de y 
+		
+		intStreamWidth.forEach(x->{
+			intStreamHeight.forEach(y->{
+				var coord = new Coordonate(x, y);
+				var state = new HashMap<String,Boolean>();
+				state.put(UNCLOCKED, true);
+				state.put(DISPO, true);
+				
+				coordonates.put(coord, state);
+			});
+		});
+	}
+	
 	public void unclockedCoordonate(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		coordonates.entrySet().stream()
