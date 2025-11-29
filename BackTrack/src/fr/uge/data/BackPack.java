@@ -99,7 +99,7 @@ public class BackPack {
 	}
 	
 	
-	// ajout d'un équipement 
+	// ajout d'un équipement dans le sac
 	public boolean addEquipement(Item equipement,Coordonate clickedCoord) {
 		// clickedCoord ( données ou coordonnées récuperées venant d'interface zen)
 		Objects.requireNonNull(equipement);
@@ -119,5 +119,22 @@ public class BackPack {
 		return true;
 	}
 	
+	// enlever l'item dans sac
+	public boolean removeEquipment(Item equipment) {
+		Objects.requireNonNull(equipment);
+		if(!equipments.containsKey(equipment)) {
+			return false;
+		}
+		
+		//recuperer les coordonées occupées par item
+		var coordAbsolutes = equipments.get(equipment);
+		
+		//Libérer les cases 
+		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, false));
+		
+		// supprimer définitivement
+		equipments.remove(equipment);
+		return true;
+	}
 	
 }
