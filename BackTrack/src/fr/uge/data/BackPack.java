@@ -131,10 +131,26 @@ public class BackPack {
 		
 		//Libérer les cases 
 		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, false));
-		
-		// supprimer définitivement
 		equipments.remove(equipment);
 		return true;
 	}
 	
+	// déplacer un equipement ou item
+	public boolean moveEquipment(Item equipment, Coordonate newClickedCoord) {
+		Objects.requireNonNull(equipment);
+		Objects.requireNonNull(newClickedCoord);
+		
+		if(!equipments.containsKey(equipment)) {
+			return false;
+		}
+		
+		var oldCoordAbsolutes = equipments.get(equipment);
+		var accepted = addEquipement(equipment, newClickedCoord);
+		
+		if(accepted) {
+		//les anciens coordonées sont disponibles
+			oldCoordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
+		}
+		return accepted;
+	}
 }
