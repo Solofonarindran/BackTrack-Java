@@ -153,4 +153,20 @@ public class BackPack {
 		}
 		return accepted;
 	}
+	
+	
+	public void rotateEquipment(Item item) {
+		Objects.requireNonNull(item);
+		var oldCoord = equipments.get(item);
+		
+		// Map<Item,List<Coordonate>>
+		var rotatedItem = ItemRotation.rotateItem(item, oldCoord);
+		//var success = false;
+		rotatedItem.entrySet().forEach(e->{
+			moveEquipment(e.getKey(), e.getValue().getFirst());
+		});
+	
+	}
+	
+	
 }
