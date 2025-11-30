@@ -130,7 +130,7 @@ public class BackPack {
 		var coordAbsolutes = equipments.get(equipment);
 		
 		//Libérer les cases 
-		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, false));
+		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
 		equipments.remove(equipment);
 		return true;
 	}
