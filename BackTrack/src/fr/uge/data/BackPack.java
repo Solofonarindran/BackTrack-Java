@@ -1,5 +1,6 @@
 package fr.uge.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,5 +169,11 @@ public class BackPack {
 	
 	}
 	
+	/* retourne les coordonnées occupées par un item*/
+	public List<Coordonate> getItemCoordinates(Item item) {
+			Objects.requireNonNull(item);
+			return equipments.getOrDefault(item, new ArrayList<>());
+	}
 	
+
 }
