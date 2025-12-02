@@ -185,6 +185,17 @@ public class BackPack {
              coordonates.get(coordonate).get(UNLOCKED);
   }
 	
+  //Item by coordinate
+  //Même si une partie d'item est concernée. 
+  public Item getItemAt(Coordonate c) {
+  	return equipments.entrySet().stream()
+  											.filter(e->e.getValue().contains(c))
+  											//.map(e->e.getKey())
+  											.map(Map.Entry::getKey)
+  											.findFirst()
+  											.orElseGet(()->null);
+
+  }
   
   //retourne la liste des items débarassés
 	public List<Item> forceMalediction(Malediction malediction,Coordonate clickedCoordinate) {
