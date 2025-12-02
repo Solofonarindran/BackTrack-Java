@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import fr.uge.model.Coordonate;
 import fr.uge.model.Item;
+import fr.uge.model.Malediction;
 
 public class BackPack {
 	
@@ -175,5 +176,47 @@ public class BackPack {
 			return equipments.getOrDefault(item, new ArrayList<>());
 	}
 	
-
+  /**
+   * Vérifie si une case est déverrouillée (existe dans le sac)
+   */
+  public boolean isUnlocked(Coordonate coordonate) {
+      Objects.requireNonNull(coordonate);
+      return coordonates.containsKey(coordonate) && 
+             coordonates.get(coordonate).get(UNLOCKED);
+  }
+	
+  
+  //retourne la liste des items débarassés
+	public List<Item> forceMalediction(Malediction malediction,Coordonate clickedCoordinate) {
+		Objects.requireNonNull(malediction);
+		Objects.requireNonNull(clickedCoordinate);
+		
+		// La liste des items en conflit
+		var destroyedItems = new ArrayList<Item>();
+		//calculer les cases que la malediction occupera
+		var references = malediction.references();
+		var absoluteCoords = Coordonate.toAbsolute(references, clickedCoordinate);
+		
+	// Vérifier que toutes les cases sont déverrouillées
+    boolean allUnlocked = absoluteCoords.stream()
+        									.allMatch(this::isUnlocked);
+    
+    if(!allUnlocked) {
+    	return destroyedItems;
+    }
+    absoluteCoords.forEach(c-> {
+    	var itemAt = getItemAt(c);
+    	if(!Objects.isNull(itemAt) ) {
+    		destroyedItems.add(itemAt);
+    	}
+    });
+    
+    //Détruire les items en conflit
+    destroyedItems.forEach(this::removeEquipment);
+    
+    equipments.put(malediction, absoluteCoords);
+    absoluteCoords.forEach(c->upgradeCoordonateDispo(c, false));
+		return destroyedItems;
+	}
+	
 }
