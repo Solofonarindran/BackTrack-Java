@@ -13,7 +13,7 @@ public class ItemFactory {
 
     // Méthode qui initialise le catalogue des objets disponibles 
     private static List<ItemTreasure> initCatalog() {
-        var list = new ArrayList<>();
+    	List<ItemTreasure> list = new ArrayList<>();
         list.addAll(Weapon.weaponsAvailable());
         list.addAll(Armor.armorAvailable());
         list.addAll(Magic.magicElemAvailable());
@@ -27,7 +27,7 @@ public class ItemFactory {
         return catalog;
     }
     
-    // Méthode qui permet d'obtenir un objet en le recherchant avec son nom -> utile ?
+    // Méthode qui permet d'obtenir un objet en le recherchant avec son nom 
     public static ItemTreasure getItemByName(String name) {
         return catalog.stream()
                       .filter(i -> i.name().equals(name))
