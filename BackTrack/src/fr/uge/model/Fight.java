@@ -155,7 +155,7 @@ public class Fight {
 	// équipé -> boolean dans hero ?
 
 	// ennemi mort -> partie gagnée
-	public void boolean winGame() {
+	public boolean winGame() {
 		if(enemy.healthPoints() <= 0) {
 			System.out.println("Partie gagnée !\n");
 			return true;
@@ -163,8 +163,8 @@ public class Fight {
 		return false;
 	}
 	// hero mort
-	public void boolean lostGame() {
-		if(hero.healthPoints() <= 0) {
+	public boolean lostGame() {
+		if(hero.healthPoints <= 0) {
 			System.out.println("Partie perdue !\n");
 			return true;
 		}
