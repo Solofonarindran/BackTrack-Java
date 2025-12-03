@@ -68,7 +68,7 @@ public class Fight {
 	    back.replaceItemInBackpack(gold);
 	}
 	
-	// attaque du hero 
+	// attaque du hero. équipé -> boolean dans hero ?
 	private static void heroAttack(Enemy enemy) {
 		Objects.requireNonNull(enemy);
 		System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
@@ -114,26 +114,6 @@ public class Fight {
 		
 	}
 	
-	private static void heroAttack(Enemy enemy) {
-		Objects.requireNonNull(enemy);
-		System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
-		List<ItemTreasure> itemInBackPack = hero.getBackPack();
-		// faire la méthode string pour avoir un bel affichage + les dégâts et la protection 
-		System.out.println(itemInBackPack);
-		// On récupère la saisie de l'utilisateur
-		Scanner scanner = new Scanner(System.in);
-		int choice = scanner.nextInt();
-		int index = choice - 1; // -1 car la liste commence à 1 lors de l'affichage
-		// On vérifie que l'index est valide
-		Objects.checkIndex(choice, itemInBackPack.size());
-		ItemTreasure item = itemInBackPack.get(index);
-	    System.out.println("Vous utilisez : " + item.name());
-	    // On récupère les effets de l'arme
-	    int damage = item.damage();
-	    enemy.takeDamage(damage);
-	}
-	
-	
 	// choix de l'ennemi (attaque ou aug niv protection)
 	private static EnemyAction enemyChoice() {
 		var choices = List.of('A', 'P');
@@ -149,10 +129,6 @@ public class Fight {
 		};
 		return new EnemyAction(choice, ptsDegats, protection);
 	}
-	
-	// liste des armes dispo dans le sac à dos du hero -> avec getbackpack
-	
-	// équipé -> boolean dans hero ?
 
 	// ennemi mort -> partie gagnée
 	public boolean winGame() {
@@ -162,6 +138,7 @@ public class Fight {
 		}
 		return false;
 	}
+	
 	// hero mort
 	public boolean lostGame() {
 		if(hero.healthPoints <= 0) {
