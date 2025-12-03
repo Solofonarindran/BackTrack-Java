@@ -1,5 +1,7 @@
 package fr.uge.model;
+import fr.uge.data.BackPack;
 import fr.uge.data.Hero;
+import jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput;
 
 import java.util.List;
 import java.util.Random;
@@ -11,17 +13,19 @@ import java.util.stream.Stream;
 
 public class Fight {
 	
-	private final Hero hero;
-	private final Enemy ratLoup;
+	private final static Hero hero;
+	private final static Enemy ratLoup;
 	private final Enemy petitRatLoup;
 	private final ArrayList<Enemy> enemies;
+	private final static BackPack back;
 	
 	
-	private final ArrayList<ItemTreasure> weapons;
+	private final List<ItemTreasure> weapons;
 	
 	public Fight() {
-		// a revoir en fonction de la classe Hero
-		hero = new Hero("Héro", 40, 20);
+		// pour le moment à modifier plus tard 
+		back = new BackPack();
+		hero = new Hero(40, 40, 1, 0, 0, 3, 0, 0, back, 0);
 		ratLoup = new Enemy("Rat-Loup", 50, 10);
         petitRatLoup = new Enemy("Petit Rat-Loup", 30, 5);
         enemies = new ArrayList<>();
@@ -50,12 +54,26 @@ public class Fight {
                 .orElseThrow(() -> new IllegalArgumentException("Index invalide"));
 	}
 	
+	// cout d'utilisation d'une arme
+	private static void costWeapon(ItemTreasure item) {
+		Objects.requireNonNull(item);
+		// il faudrait un costEnergy, costMana et costGold ? dans les paramètres des items
+		hero.energy -= item.costEnergy();
+		hero.manaPoints -= item.costMana();
+	    ItemTreasure gold = ItemFactory.getItemByName("Gold");
+	    int costGold = item.costGold();
+	    // maj du nombre d'or 
+	    gold = gold.spend(costGold);
+	    // màj dans le sac à dos
+	    back.replaceItemInBackpack(gold);
+	}
+	
 	// attaque du hero 
 	private static void heroAttack(Enemy enemy) {
 		Objects.requireNonNull(enemy);
 		System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
 		List<ItemTreasure> itemInBackPack = hero.getBackPack();
-		// faire la méthode string pour avoir un bel affichage 
+		// faire la méthode string pour avoir un bel affichage + les dégâts et la protection 
 		System.out.println(itemInBackPack);
 		// On récupère la saisie de l'utilisateur
 		Scanner scanner = new Scanner(System.in);
@@ -65,34 +83,94 @@ public class Fight {
 		Objects.checkIndex(choice, itemInBackPack.size());
 		ItemTreasure item = itemInBackPack.get(index);
 	    System.out.println("Vous utilisez : " + item.name());
+	    // On récupère les effets de l'arme
 	    int damage = item.damage();
-	    int protection = item.protection();
-	    
+	    enemy.takeDamage(damage);
 	}
 	
-	// augmenter niv de protection -> avec interface ?
+	// augmentation de la protection du héro
+	private static void heroProtection() {
+		System.out.println("Vous avez choisi de vous protéger ! Quelle protection souhaitez vous utiliser ?\n");
+		List<ItemTreasure> itemInBackPack = hero.getBackPack();
+		System.out.println(itemInBackPack);
+		Scanner scanner = new Scanner(System.in);
+		int choice = scanner.nextInt();
+		int index = choice - 1;
+		Objects.checkIndex(choice, itemInBackPack.size());
+		ItemTreasure item = itemInBackPack.get(index);
+	    System.out.println("Vous utilisez : " + item.name());
+	    int protection = item.protection();
+	    hero.addProtection(protection);
+	}
 	
-	// choix du hero (attaque ou aug niv protection
+	// choix du hero (attaque ou aug niv protection)
 	private static void heroChoice(char choice, Enemy enemy) {
 		Objects.requireNonNull(enemy);
 		switch(choice) {
 		case 'A' -> heroAttack(enemy);
-		case 'P' -> improveProtection(hero);
+		case 'P' -> heroProtection();
 		default -> throw new IllegalArgumentException("Erreur : le choix n'est pas valide");
 		};
+		
 	}
-	// cout d'utilisation d'une arme
-	// liste des armes dispo dans le sac à dos du hero
-	// hero equipé d'une arme -> les points de vie en plus + points d'attaque
-	// affiche en points numérotés des armes
-	// récup entrée de l'user pour la sélection de l'arme 
-	// équipe
-	// augmente niv protection hero
-	// attaque ennemi (1 à 15 pts de dégâts)
-	// augmente niv protection ennemi
-	// ennemi mort 
+	
+	private static void heroAttack(Enemy enemy) {
+		Objects.requireNonNull(enemy);
+		System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
+		List<ItemTreasure> itemInBackPack = hero.getBackPack();
+		// faire la méthode string pour avoir un bel affichage + les dégâts et la protection 
+		System.out.println(itemInBackPack);
+		// On récupère la saisie de l'utilisateur
+		Scanner scanner = new Scanner(System.in);
+		int choice = scanner.nextInt();
+		int index = choice - 1; // -1 car la liste commence à 1 lors de l'affichage
+		// On vérifie que l'index est valide
+		Objects.checkIndex(choice, itemInBackPack.size());
+		ItemTreasure item = itemInBackPack.get(index);
+	    System.out.println("Vous utilisez : " + item.name());
+	    // On récupère les effets de l'arme
+	    int damage = item.damage();
+	    enemy.takeDamage(damage);
+	}
+	
+	
+	// choix de l'ennemi (attaque ou aug niv protection)
+	private static EnemyAction enemyChoice() {
+		var choices = List.of('A', 'P');
+		Random random = new Random();
+		var choice = choices.get(random.nextInt(choices.size()));
+		int min=1, max=15;
+		var ptsDegats = random.nextInt(max - min + 1) + min;
+		var protection = random.nextInt(max - min + 1) + min;
+		switch(choice) {
+		case 'A' -> System.out.println("L'ennemi a prévu d'attaquer de " + ptsDegats + " de dégâts !");
+		case 'P' -> System.out.println("L'ennemi a prévu de se protéger de " + protection + " !");
+		default -> throw new IllegalArgumentException("Erreur : le choix n'est pas valide");
+		};
+		return new EnemyAction(choice, ptsDegats, protection);
+	}
+	
+	// liste des armes dispo dans le sac à dos du hero -> avec getbackpack
+	
+	// équipé -> boolean dans hero ?
+
+	// ennemi mort -> partie gagnée
+	public void boolean winGame() {
+		if(enemy.healthPoints() <= 0) {
+			System.out.println("Partie gagnée !\n");
+			return true;
+		}
+		return false;
+	}
 	// hero mort
-	// partie gagnée
+	public void boolean lostGame() {
+		if(hero.healthPoints() <= 0) {
+			System.out.println("Partie perdue !\n");
+			return true;
+		}
+		return false;
+	}
+
 	// sauvegarde des points de vie et de protection des acteurs + durée totale du combat dans un fichier texte
 		// si rencontre avec le guérisseur (boolean) -> on reprend ces points de vie
 		// sinon on prendra le dernier score en date dans le fichier
@@ -101,15 +179,26 @@ public class Fight {
 	
 	// mécanimse du tour par tour avec hero en premier
 	public void fight() {
-		// recup les anciens niveaux de vie, protection et équipements depuis la sauvegarde
-		var hero = new Hero();
-		var enemy = enemyToFight(enemies);
-		while(!deadHero() | !deadEnemy()) {
+		// à faire -> recup les anciens niveaux de vie, protection et équipements depuis la sauvegarde
+		Enemy enemy = enemyToFight(enemies);
+		while(!winGame() | !lostGame()) {
 			// prévision enemi
+			var action = enemyChoice();
 			// choix hero
+			System.out.println("Héro, c'est à votre tour de jouer ! Quelle action voulez vous effectuer : attaquer(A) ou augmenter votre niveau de protection(P) ?\n");
+			Scanner scanner = new Scanner(System.in);
+			char playerChoice = scanner.next().charAt(0);
 			// action hero
-			// choix ennemi
+			heroChoice(playerChoice, enemy);
 			// action ennemi
+			switch(action.choice()) {
+			case 'A' -> { System.out.println("L'ennemi vous a infligé " + action.ptsDegats() + " points de dégâts !");
+			hero.takeDamage(action.ptsDegats());
+			}
+			case 'P' -> { System.out.println("L'ennemi a augmenté son niveau de protection de " + action.protection() + " points !"); 
+			enemy.addProtection(action.protection());
+			}
+			};
 		}
 	}
 }
