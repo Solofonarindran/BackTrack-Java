@@ -70,7 +70,7 @@ public class BackPack {
 		if(coordonate.x() > MAX_WIDTH || coordonate.y() > MAX_HEIGHT) {
 			throw new IllegalArgumentException("Débordement du coordonné");
 		}
-		var state = coordonates.computeIfAbsent(coordonate, _ ->new HashMap<String, Boolean>());
+		var state = coordonates.computeIfAbsent(coordonate, b ->new HashMap<String, Boolean>());
 		state.put(UNLOCKED, true);
 		state.put(DISPO, true);
 	}
