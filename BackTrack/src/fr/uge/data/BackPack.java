@@ -197,6 +197,10 @@ public class BackPack {
 
   }
   
+  public boolean contains(Item item) {
+  	Objects.requireNonNull(item);
+  	return equipments.containsKey(item);
+  }
   //retourne la liste des items débarassés
 	public List<Item> forceMalediction(Malediction malediction,Coordonate clickedCoordinate) {
 		Objects.requireNonNull(malediction);
