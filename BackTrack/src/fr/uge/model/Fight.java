@@ -181,13 +181,13 @@ public class Fight {
 	public void fight() {
 		// à faire -> recup les anciens niveaux de vie, protection et équipements depuis la sauvegarde
 		Enemy enemy = enemyToFight(enemies);
-		while(!winGame() | !lostGame()) {
+		Scanner scanner = new Scanner(System.in);
+		while(!winGame() && !lostGame()) {
 			// prévision enemi
 			var action = enemyChoice();
 			// choix hero
 			System.out.println("Héro, c'est à votre tour de jouer ! Quelle action voulez vous effectuer : attaquer(A) ou augmenter votre niveau de protection(P) ?\n");
-			Scanner scanner = new Scanner(System.in);
-			char playerChoice = scanner.next().charAt(0);
+			char playerChoice = scanner.next().toUpperCase().charAt(0);
 			// action hero
 			heroChoice(playerChoice, enemy);
 			// action ennemi
