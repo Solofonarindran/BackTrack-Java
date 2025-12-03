@@ -16,7 +16,7 @@ public class BackPack {
 	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
 	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
 	
-	private static final String UNLOCKED = "unloked";
+	private static final String UNLOCKED = "unlocked";
 	private static final String DISPO = "dispo";
 	
 	private static final int MAX_WIDTH = 7;
@@ -168,5 +168,6 @@ public class BackPack {
 	
 	}
 	
+	// ajout d'un getBackPack?
 	
 }
