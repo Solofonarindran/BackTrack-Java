@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Hero {
 	// statistiques de base
-	private final int healthPoints; //Points de vie actuels
+	public int healthPoints; //Points de vie actuels
 	private final int maxHealthPoints; // Points de vie maximum
 	private int level; //Niveau du Héros
 	private	int experience; // Points d'expérience actuels
@@ -13,11 +13,11 @@ public class Hero {
 	//Statistiques de combat
 	//Energie disponible (3 par tour en combat), 
 	//On ne peut pas le mettre final ( méthod useEnergy) 
-	private int energy; 
+	public int energy; 
 	
   //On ne peut pas le mettre final ( méthod useMana) 
-	private int manaPoints; // Point mana disponibles
-	private final int protection; // POint de protection temporaire
+	public int manaPoints; // Point mana disponibles
+	private final int protection; // Point de protection temporaire
 	
 	//inventaire
 	private final BackPack backPack ;
