@@ -201,6 +201,12 @@ public class BackPack {
   	Objects.requireNonNull(item);
   	return equipments.containsKey(item);
   }
+  
+  public List<Item> getAllItems() {
+  	return equipments.entrySet().stream()
+  															.map(Map.Entry::getKey)
+  															.toList();
+  }
   //retourne la liste des items débarassés
 	public List<Item> forceMalediction(Malediction malediction,Coordonate clickedCoordinate) {
 		Objects.requireNonNull(malediction);
