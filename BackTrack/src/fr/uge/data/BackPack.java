@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import fr.uge.model.Coordonate;
@@ -238,6 +240,14 @@ public class BackPack {
     equipments.put(malediction, absoluteCoords);
     absoluteCoords.forEach(c->upgradeCoordonateDispo(c, false));
 		return destroyedItems;
+	}
+	
+	public Set<Coordonate> getUnlockedCoordinates() {
+		return coordonates.entrySet().stream()
+																 .filter(e->e.getValue().get(UNLOCKED))
+																 //.map(e->e.getKey())
+																 .map(Map.Entry::getKey)
+																 .collect(Collectors.toSet());
 	}
 	
 }
