@@ -1,6 +1,7 @@
 package fr.uge.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,19 +44,17 @@ public class BackPack {
 
 	// initialisation au milieu du sac
 	public void initializeStartingGrid() {
-		var intStreamWidth = IntStream.range(2, 5); // prendre le milieu de x
-		var intStreamHeight = IntStream.range(1, 4); // prendre le milieu de y 
 		
-		intStreamWidth.forEach(x->{
-			intStreamHeight.forEach(y->{
+		for(var x = 2; x <= 4; x++) {
+			for(var y = 1; y <= 3; y++) {
 				var coord = new Coordonate(x, y);
 				var state = new HashMap<String,Boolean>();
 				state.put(UNLOCKED, true);
 				state.put(DISPO, true);
 				
 				coordonates.put(coord, state);
-			});
-		});
+			}
+		}
 	}
 	
 
@@ -262,4 +261,9 @@ public class BackPack {
 																 .collect(Collectors.toSet());
 	}
 	
+	// =============== GETTERS POUR VIEW PROF ====================
+	
+	public Map<Item, List<Coordonate>> getItems() {
+		return Collections.unmodifiableMap(equipments);
+	}
 }
