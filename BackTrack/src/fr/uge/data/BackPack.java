@@ -281,4 +281,8 @@ public class BackPack {
 															.mapToInt(List::size)
 															.sum();
 	}
+	
+	public int getItemCount() {
+		return equipments.size();
+	}
 }
