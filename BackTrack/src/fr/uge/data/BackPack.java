@@ -58,6 +58,8 @@ public class BackPack {
 		});
 	}
 	
+
+
 //	public void unlockedCoordonate(Coordonate coordonate) {
 //		Objects.requireNonNull(coordonate);
 //		coordonates.entrySet().stream()
@@ -93,7 +95,12 @@ public class BackPack {
 	// savoir si la place de coordonné peut contenir un équipement
 	// check d'une seule coordonnée
 	// l'ensemble des coordonées d'un item est checké dans le méthode addEquipement (var isAccepted)
-	private boolean isAccepted(Coordonate coordonate) {
+	/**
+   * Vérifie si une case peut accueillir un item (déverrouillée ET disponible)
+   * @param coordonate La coordonnée à vérifier
+   * @return true si la case est libre
+   */
+	public boolean isAccepted(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
 		return coordonates.entrySet().stream()
 		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
@@ -139,7 +146,12 @@ public class BackPack {
 		return true;
 	}
 	
-	// déplacer un equipement ou item
+	/**
+	 * 
+	 * @param equipment 
+	 * @param newClickedCoord
+	 * @return
+	 */
 	public boolean moveEquipment(Item equipment, Coordonate newClickedCoord) {
 		Objects.requireNonNull(equipment);
 		Objects.requireNonNull(newClickedCoord);
