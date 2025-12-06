@@ -266,4 +266,19 @@ public class BackPack {
 	public Map<Item, List<Coordonate>> getItems() {
 		return Collections.unmodifiableMap(equipments);
 	}
+	
+	
+	// total des déverouillés
+	public int getTotalSlots() {
+		return coordonates.values().stream()
+															  .filter(state ->state.get(UNLOCKED))
+															  .mapToInt(_ -> 1)
+															  .sum();
+	}
+	
+	public int getOccupiedSlots() {
+		return equipments.values().stream()
+															.mapToInt(List::size)
+															.sum();
+	}
 }
