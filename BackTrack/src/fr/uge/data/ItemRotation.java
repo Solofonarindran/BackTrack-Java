@@ -35,7 +35,7 @@ public class ItemRotation {
 			return normalised;
 	}
 	
-	private static boolean canRotate(Item item ) {
+	public static boolean canRotate(Item item ) {
 		Objects.requireNonNull(item);
 		return item.rotate();
 	}
