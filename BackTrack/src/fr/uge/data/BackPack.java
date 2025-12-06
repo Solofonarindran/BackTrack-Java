@@ -263,6 +263,7 @@ public class BackPack {
 	
 	// =============== GETTERS POUR VIEW PROF ====================
 	
+	//Map des items avec ses coordonnées
 	public Map<Item, List<Coordonate>> getItems() {
 		return Collections.unmodifiableMap(equipments);
 	}
@@ -276,6 +277,8 @@ public class BackPack {
 															  .sum();
 	}
 	
+	
+	//return le total des cases occupées
 	public int getOccupiedSlots() {
 		return equipments.values().stream()
 															.mapToInt(List::size)
