@@ -86,7 +86,7 @@ public class Hero {
 	//checker si un item peu utiliser grâce au point de l'energie
 	// si oui , décrementer le point return true
 	// si non , return false
-	private boolean useEnergy(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
+	public boolean useEnergy(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
 		if(energy >= amount) {
 			energy -= amount;
 			return true;
@@ -100,7 +100,7 @@ public class Hero {
 		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
 	}
 	
-	private boolean useMana(int cost) {
+	public boolean useMana(int cost) {
 		if(manaPoints >= cost) {
 			manaPoints-= cost;
 			return true;
@@ -139,7 +139,18 @@ public class Hero {
 		}
 	}
 	
-	
+  // Getters
+  public int getHealthPoint() { return healthPoints; }
+  public int getMaxHealthPoint() { return maxHealthPoints; }
+  public int getEnergy() { return energy; }
+  public int getMaxEnergy() { return maxEnergy; }
+
+  public int getProtection() { return protection; }
+  public int getKeys() { return keys; }
+  public int getLevel() { return level; }
+  public int getExperience() { return experience; }
+  public BackPack getBackpack() { return backPack; }
+  
 	// on va l'utiliser pour déverouiller l'un des salles
 	public boolean useKey() {
 		if(keys > 0) {
