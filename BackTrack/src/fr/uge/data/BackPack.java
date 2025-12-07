@@ -57,7 +57,9 @@ public class BackPack {
 		}
 	}
 	
-
+	public int getMaxHeight() {
+		return MAX_HEIGHT;
+	}
 
 //	public void unlockedCoordonate(Coordonate coordonate) {
 //		Objects.requireNonNull(coordonate);
@@ -170,7 +172,7 @@ public class BackPack {
 	}
 	
 	
-	public void rotateEquipment(Item item) {
+	public boolean rotateEquipment(Item item) {
 		Objects.requireNonNull(item);
 		var oldCoord = equipments.get(item);
 		
@@ -180,7 +182,10 @@ public class BackPack {
 		rotatedItem.entrySet().forEach(e->{
 			moveEquipment(e.getKey(), e.getValue().getFirst());
 		});
-	
+		if(oldCoord.equals(rotatedItem.get(item))) {
+			return true;
+		}
+		return false;
 	}
 	
 	/* retourne les coordonnées occupées par un item*/
