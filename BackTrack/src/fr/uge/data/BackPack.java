@@ -60,6 +60,10 @@ public class BackPack {
 	public int getMaxHeight() {
 		return MAX_HEIGHT;
 	}
+	
+	public int getMaxWidth() {
+		return MAX_WIDTH;
+	}
 
 //	public void unlockedCoordonate(Coordonate coordonate) {
 //		Objects.requireNonNull(coordonate);
