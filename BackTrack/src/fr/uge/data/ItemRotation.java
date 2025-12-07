@@ -43,7 +43,7 @@ public class ItemRotation {
 	private static Map<Item, List<Coordonate>> patternMatching(Item item, List<Coordonate> coordinates, List<Coordonate> newCoordinates) {
 		Objects.requireNonNull(item);
 		return switch (item) {
-			case Armor a -> Map.of(new Armor(a.name(), a.type(), a.rarity(),a.references(), a.cost(),a.defensePoint(),a.urlImage()), newCoordinates);
+			case Armor a -> Map.of(new Armor(a.name(), a.type(), a.rarity(),a.references(), a.cost(),a.defensePoint(),a.uriImage()), newCoordinates);
 			case Weapon w -> Map.of(new Weapon(w.name(), w.type(), w.classe(), w.cost(), w.healthPoint(), w.rarity(), w.references()), newCoordinates);
 			case Magic m -> Map.of(new Magic(m.name(), m.type(), m.rarity(), m.manaMax(), m.urlImage(), m.references()), newCoordinates);
 			case Gold g -> Map.of(new Gold(g.number(), g.rarity(), g.urlImage(),g.references()), newCoordinates);
