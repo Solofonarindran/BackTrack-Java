@@ -6,12 +6,12 @@ import java.util.Objects;
 
 // references sont des models de coordonnées
 public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate> references, 
-	int cost, int defensePoint, String urlImage) implements Item, ItemTreasure{
+	int cost, int defensePoint, String uriImage) implements Item, ItemTreasure{
 	public Armor {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(rarity);
-		Objects.requireNonNull(urlImage);
+		Objects.requireNonNull(uriImage);
 		if(cost < 0) {
 			throw new IllegalArgumentException("cost valeur négatif inacceptable");
 		}
