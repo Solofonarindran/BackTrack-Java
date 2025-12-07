@@ -10,9 +10,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import fr.uge.model.Armor;
+import fr.uge.model.ArmorType;
+import fr.uge.model.Consumable;
 import fr.uge.model.Coordonate;
+import fr.uge.model.Gold;
 import fr.uge.model.Item;
 import fr.uge.model.Malediction;
+import fr.uge.model.Rarity;
+import fr.uge.model.Weapon;
+import fr.uge.model.WeaponClass;
+import fr.uge.model.WeaponType;
 
 public class BackPack {
 	
@@ -41,7 +49,28 @@ public class BackPack {
 	//								: { false 						 }
 	
 	
-
+  public void initialItems() {
+  	 // Épée verticale (3 cases)
+    var sword = new Weapon("Épée en bois",WeaponType.SWORDS,WeaponClass.MELLER,1,6,Rarity.COMMON,
+    		List.of(new Coordonate(0, 0),new Coordonate(0, 1),new Coordonate(0, 2)));
+    
+    // Bouclier 2×2
+    var shield = new Armor("Bouclier en bois",ArmorType.SHIELD,Rarity.COMMON,
+        List.of(new Coordonate(0, 0),new Coordonate(1, 0),new Coordonate(0, 1),new Coordonate(1, 1)),1,7,"images");
+    
+    // Potion 1×1
+    var potion = new Consumable("Potion de santé",List.of(new Coordonate(0, 0)));
+    
+    // Or 1×1
+    var gold = new Gold(50,Rarity.COMMON,"images",List.of(new Coordonate(0, 0)));
+    
+    // Placement dans le sac (zone 3×3 : colonnes 2-4, lignes 1-3)
+    addEquipement(sword, new Coordonate(2, 1));
+    addEquipement(shield, new Coordonate(3, 1));
+    addEquipement(potion, new Coordonate(2, 3));
+    addEquipement(gold, new Coordonate(4, 3));
+  }
+  
 	// initialisation au milieu du sac
 	public void initializeStartingGrid() {
 		
@@ -55,6 +84,11 @@ public class BackPack {
 				coordonates.put(coord, state);
 			}
 		}
+	}
+	
+	public void init() {
+		initialItems();
+		initializeStartingGrid();
 	}
 	
 	public int getMaxHeight() {
