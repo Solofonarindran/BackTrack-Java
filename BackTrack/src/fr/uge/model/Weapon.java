@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record Weapon(String name, WeaponType type, WeaponClass classe, 
-		int cost, int healthPoint, int damage, int protection, Rarity rarity, List<Coordonate> references) implements Item, ItemTreasure {
+public record Weapon(String name, WeaponType type, WeaponClass classe, Rarity rarity,
+		 int damage, int protection, RessourcesType moneyType, int cost, List<Coordonate> references) implements Item, FightItem {
 	
 	public Weapon {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(classe);
 		Objects.requireNonNull(rarity);
-		if( cost < 0) {
-			throw new IllegalArgumentException("Cost n'accepte pas une valeur négative");
+		if(cost < 0) {
+			throw new IllegalArgumentException("Coût de l'arme négatif inacceptable");
 		}
-		if(healthPoint < 0) {
-			throw new IllegalArgumentException(" Point de vie négatif inacceptable");
+		if(protection < 0) {
+			throw new IllegalArgumentException("Point de vie négatif inacceptable");
 		}
 	}
 	
@@ -24,9 +24,9 @@ public record Weapon(String name, WeaponType type, WeaponClass classe,
 	public static ArrayList<Weapon> weaponsAvailable() {
 		 ArrayList<Weapon> list = new ArrayList<>();
 		 List<Coordonate> refs = List.of(new Coordonate(0, 0), new Coordonate(1, 0), new Coordonate(2, 0));
-		 List<Coordonate> refs2 = List.of(new Coordonate(0, 0), new Coordonate(0, 1));
-	     list.add(new Weapon("Épée", WeaponType.SWORDS, WeaponClass.MELLER, 5, 2, 8, 0, Rarity.COMMON, refs));
-	     list.add(new Weapon("Fléchettes", WeaponType.FRAGILE, WeaponClass.DISTANCE, 2, 1, 8, 0, Rarity.COMMON, refs2));
+		 List<Coordonate> refs2 =  List.of(new Coordonate(0, 0), new Coordonate(0, 1));
+	     list.add(new Weapon("Épée", WeaponType.SWORDS, WeaponClass.MELLER, Rarity.COMMON, 7, 2, RessourcesType.ENERGY, 8, refs));
+	     list.add(new Weapon("Fléchettes", WeaponType.FRAGILE, WeaponClass.DISTANCE, Rarity.COMMON, 2, 1,  RessourcesType.GOLD, 8, refs2));
 	     return list;
 	}
 	
