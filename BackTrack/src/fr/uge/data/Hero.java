@@ -2,42 +2,37 @@ package fr.uge.data;
 
 import java.util.Objects;
 
-public class Hero {
+public final class Hero {
 	// statistiques de base
-	public int healthPoints; //Points de vie actuels
-	private final int maxHealthPoints; // Points de vie maximum
+	private int healthPoints; //Points de vie actuels
+	private int maxHealthPoints; // Points de vie maximum
 	private int level; //Niveau du Héros
 	private	int experience; // Points d'expérience actuels
-	private final int maxEnergy ;
+	private int maxEnergy ;
 	
 	//Statistiques de combat
 	//Energie disponible (3 par tour en combat), 
 	//On ne peut pas le mettre final ( méthod useEnergy) 
-	public int energy; 
-	
-  //On ne peut pas le mettre final ( méthod useMana) 
-	public int manaPoints; // Point mana disponibles
-	private final int protection; // Point de protection temporaire
-	
+	private int energy; 
+	private int protection; // Point de protection temporaire
 	//inventaire
-	private final BackPack backPack ;
+	private BackPack backPack;
 	private int keys; //
 	
-	public Hero(int healthPoints,int maxHealthPoints, int level, int experience,
-							int maxEnergy, int energy, int manaPoints, int protection, BackPack backPack, int keys) {
+	public Hero(int healthPoints,int maxHealthPoints,
+							int energy, int maxEnergy, int protection, BackPack backPack, int keys, int experience, int level) {
 		Objects.requireNonNull(backPack);
 		
 		this.healthPoints = healthPoints;
 		this.maxHealthPoints = maxHealthPoints;
-		this.maxEnergy = maxEnergy;
-		this.level = level;
-		this.experience = experience;
-	
 		this.energy = energy;
-		this.manaPoints = manaPoints;
+		this.maxEnergy = maxEnergy;
 		this.protection = protection;
-		this.backPack = backPack;
+		this.backPack = Objects.requireNonNull(backPack);
 		this.keys = keys;
+		
+		this.experience = experience;
+		this.level = level;
 	}
 	
 	// Inflige des dégats au joueur
@@ -52,14 +47,15 @@ public class Hero {
 		if(protection > 0) {
 			if(protection >= damage) {
 				newProtection = protection - damage;
-				return new Hero(healthPoints,maxHealthPoints,level,experience, maxEnergy, energy,manaPoints,newProtection,backPack,keys);
+				return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, newProtection, backPack, keys, experience, level);
 			}else {
 				restDamage = damage - protection;
+				newProtection = 0;
 			}
 		}
 	  // si non le dégât s'implique directement au point de vie (healthPoint) de 
 		var newHealthPoints = Math.max(0, healthPoints - restDamage);
-		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
+		return new Hero(newHealthPoints, maxHealthPoints, energy, maxEnergy, newProtection, backPack, keys, experience, level);
 	}
 	
 	// méthode pour soigner le joueur 
@@ -68,51 +64,52 @@ public class Hero {
 			throw new IllegalArgumentException("Le soin ne peut pas être négatif");
 		}
 		var newHealthPoints = Math.min(maxHealthPoints, healthPoints + amount);
-		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys);
+		return new Hero(newHealthPoints, maxHealthPoints, energy, maxEnergy, protection, backPack, keys, experience, level);
 	}
 	
 	// méthode pour incrémenter la protection 
 	public Hero addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
 		var newProtection = protection + amount;
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
+		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, newProtection, backPack, keys, experience, level);
 	}
 	
 	// réinitialisé la protection
 	public Hero resetProtection() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, 0, backPack, keys);
+		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, 0, backPack, keys, experience, level);
 	}
 	
 	
 	//checker si un item peu utiliser grâce au point de l'energie
 	// si oui , décrementer le point return true
 	// si non , return false
-	private boolean useEnergy(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
-		if(energy >= amount) {
-			energy -= amount;
-			return true;
-		}
-		return false;
+	public Hero useEnergy(int amount) {
+	    if(energy < amount) {
+	        throw new IllegalStateException("Pas assez d'énergie !");
+	    }
+	    return new Hero(healthPoints, maxHealthPoints, energy - amount, maxEnergy,
+	                    protection, backPack, keys, experience, level);
 	}
+
 	
 	//réinitialise le point de l'energy
 	// en valeur max du point de l'energy
 	public Hero resetEnergy() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
+		return new Hero(healthPoints, maxHealthPoints, maxEnergy, maxEnergy, protection, backPack, keys, experience, level);
 	}
 	
-	private boolean useMana(int cost) {
-		if(manaPoints >= cost) {
-			manaPoints-= cost;
-			return true;
-		}
-		return false;
-	}
-	
-	//incrémenter la valeur de mana
-	public Hero increaseMana(int amount) {
-		var newManaPoints = manaPoints + amount;
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, newManaPoints, protection, backPack, keys);
-	}
+//	private boolean useMana(int cost) {
+//		if(manaPoints >= cost) {
+//			manaPoints-= cost;
+//			return true;
+//		}
+//		return false;
+//	}
+//	
+//	//incrémenter la valeur de mana
+//	public Hero increaseMana(int amount) {
+//		var newManaPoints = manaPoints + amount;
+//		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, newManaPoints, protection, backPack, keys, experience, level);
+//	}
 	
 	//Exemple : niveau 2 = 100 XP, niveau 3 = 200 XP...
 	private int getExperienceForNextLevel() {
@@ -151,7 +148,29 @@ public class Hero {
 	
 	//ajout du clef
 	public Hero addKey() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys ++ );
+		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, protection, backPack, keys++, experience, level);
+	}
+	
+	// ajout d'un getBackPack?
+//	public List<Item> getBackPack() {
+//		return backPack.getItem();
+//	}
+	
+	
+	public int getHealthPoints() {
+		return healthPoints;
+	}
+	
+	public int getProtection() {
+		return protection;
+	}
+	
+	public BackPack getBackPack() {
+		return backPack;
+	}
+	
+	public int getEnergy() {
+		return energy;
 	}
 	
 	@Override
@@ -159,7 +178,6 @@ public class Hero {
 		var str = "\n========== STATISTIQUES DU HÉROS ==========" +
 							"❤️  Vie        : " + healthPoints + "/" + maxHealthPoints +
 							"⚡ Énergie    : " + energy + "/" + maxEnergy + 
-							"💙 Mana       : " + manaPoints + "/" + manaPoints +
 							"🛡️  Protection : " + protection +
 							"⭐ Niveau     : " + level +
 							"✨ Expérience : " + experience + "/" + getExperienceForNextLevel() +
