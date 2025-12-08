@@ -1,17 +1,22 @@
 package fr.uge.data;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 import fr.uge.model.Coordonate;
+import fr.uge.model.FightItem;
+import fr.uge.model.Gold;
 import fr.uge.model.Item;
+import fr.uge.model.ManaStone;
+import fr.uge.model.Ressources;
 
 public class BackPack {
 	
-	private final HashMap<Item, List<Coordonate>> equipments ;
+	private final IdentityHashMap<Item, List<Coordonate>> equipments ;
 	
 	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
 	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
@@ -23,7 +28,7 @@ public class BackPack {
 	private static final int MAX_HEIGHT = 5;
 	
 	public BackPack() {
-		equipments = new HashMap<Item, List<Coordonate>>();
+		equipments = new IdentityHashMap<Item, List<Coordonate>>();
 		coordonates = new HashMap<Coordonate,Map<String,Boolean>>();
 	}
 	
@@ -38,30 +43,33 @@ public class BackPack {
 	
 
 	// initialisation au milieu du sac
-	public void initializeStartingGrid() {
-		var intStreamWidth = IntStream.range(2, 5); // prendre le milieu de x
-		var intStreamHeight = IntStream.range(1, 4); // prendre le milieu de y 
-		
-		intStreamWidth.forEach(x->{
-			intStreamHeight.forEach(y->{
-				var coord = new Coordonate(x, y);
-				var state = new HashMap<String,Boolean>();
-				state.put(UNLOCKED, true);
-				state.put(DISPO, true);
-				
-				coordonates.put(coord, state);
-			});
-		});
-	}
-	
-//	public void unlockedCoordonate(Coordonate coordonate) {
-//		Objects.requireNonNull(coordonate);
-//		coordonates.entrySet().stream()
-//													.filter(e->e.getKey().equals(coordonate))
-//													.findFirst()
-//													.ifPresent(e->e.getValue().put(UNLOCKED, true));
+//	public void initializeStartingGrid() {
+//		var intStreamWidth = IntStream.range(2, 5); // prendre le milieu de x
+//		var intStreamHeight = IntStream.range(1, 4); // prendre le milieu de y 
+//		
+//		intStreamWidth.forEach(x->{
+//			intStreamHeight.forEach(y->{
+//				var coord = new Coordonate(x, y);
+//				var state = new HashMap<String,Boolean>();
+//				state.put(UNLOCKED, true);
+//				state.put(DISPO, true);
+//				
+//				coordonates.put(coord, state);
+//			});
+//		});
 //	}
 	
+	public void initializeStartingGrid() {
+	    IntStream.range(2, 5).forEach(x -> {
+	        IntStream.range(1, 4).forEach(y -> {
+	            var coord = new Coordonate(x, y);
+	            var state = new HashMap<String, Boolean>();
+	            state.put(UNLOCKED, true);
+	            state.put(DISPO, true);
+	            coordonates.put(coord, state);
+	        });
+	    });
+	}
 	
 	// cette méthode déverouille une case du sac.
 	// déverouille signifie aussi de plus qu'il est dispo = true
@@ -94,7 +102,7 @@ public class BackPack {
 		return coordonates.entrySet().stream()
 		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
 									 .map(e->e.getValue().get(DISPO))
-								   .findFirst()
+									 .findFirst()
 									 .orElseGet(()->false);
 	}
 	
@@ -168,6 +176,80 @@ public class BackPack {
 	
 	}
 	
-	// ajout d'un getBackPack?
+	public void replaceItem(Item newItem) {
+	    Objects.requireNonNull(newItem);
+	    // trouver l'ancien item exact (même instance de classe + même nom)
+	    var oldItemEntry = equipments.keySet().stream()
+	            .filter(item -> item.getClass() == newItem.getClass() && item.name().equals(newItem.name()))
+	            .findFirst();
+
+	    oldItemEntry.ifPresent(old -> {
+	        var oldCoords = equipments.get(old);
+	        removeEquipment(old); // libère les cases
+	        // créer le nouvel item mais en réutilisant les mêmes coordonnées
+	        equipments.put(newItem, oldCoords);
+	        oldCoords.forEach(c -> upgradeCoordonateDispo(c, false));
+	    });
+	}
+
+
+	public List<Item> getItem() {
+		return equipments.keySet()
+				.stream()
+                .toList();
+	}
 	
+	public Gold getGold() {
+	    return equipments.keySet()
+	    		.stream()
+	            .filter(item -> item instanceof Gold)
+	            .map(item -> (Gold) item)
+	            .findFirst()
+	            .orElseThrow(() -> new IllegalStateException("Pas d'or dans le sac"));
+	}
+	
+	public ManaStone getManaStone() {
+	    return equipments.keySet()
+	    		.stream()
+	            .filter(item -> item instanceof ManaStone)
+	            .map(item -> (ManaStone) item)
+	            .findFirst()
+	            .orElse(null);
+	}
+	
+	@Override
+	public String toString() {
+	    var items = getItem(); // récupère la liste des items
+	    if (items.isEmpty()) {
+	        return "Le sac est vide.";
+	    }
+
+	    StringBuilder sb = new StringBuilder("Contenu du sac :\n");
+	    for (int i = 0; i < items.size(); i++) {
+	        Item item = items.get(i);
+	        sb.append(i + 1).append(". ").append(item.name()); // numérotation + nom
+	        var coords = equipments.get(item);
+	        // si c'est un FightItem, afficher stats
+	        if (item instanceof FightItem fightItem) {
+	            sb.append(" | Damage: ").append(fightItem.damage())
+	              .append(" | Protection: ").append(fightItem.protection())
+	              .append(" | Coût: ").append(fightItem.cost())
+	              .append(" ").append(fightItem.moneyType());
+
+	        }
+	        
+	        if (item instanceof Ressources money) {
+	        	sb.append(" | Quantité : ").append(money.quantity());
+	        }
+	        
+	        if (coords != null) {
+	            sb.append(" | Occupe : ").append(coords);
+	        }
+	        
+	        sb.append("\n");
+	    }
+
+	    return sb.toString();
+	}
+
 }
