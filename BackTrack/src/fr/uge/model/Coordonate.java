@@ -30,4 +30,8 @@ public record Coordonate(int x, int y) {
 		return absolutes;
 	}
 	
+	@Override 
+	public String toString() {
+		return "Coordonnées : (" + x + ", " + y + ")";
+	}
 }
