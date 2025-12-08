@@ -1,42 +1,30 @@
 package fr.uge.model;
-import fr.uge.data.BackPack;
-import fr.uge.data.Hero;
-import jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput;
+//import fr.uge.data.BackPack;
 
+import fr.uge.data.Hero;
+import fr.uge.data.Enemy;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Objects;
-import java.util.ArrayList;
-import java.util.stream.Stream;
+//import java.util.stream.Stream;
 
 
 public class Fight {
 	
-	private final static Hero hero;
-	private final static Enemy ratLoup;
-	private final Enemy petitRatLoup;
-	private final ArrayList<Enemy> enemies;
-	private final static BackPack back;
-	
-	
-	private final List<ItemTreasure> weapons;
-	
-	public Fight() {
-		// pour le moment à modifier plus tard 
-		back = new BackPack();
-		hero = new Hero(40, 40, 1, 0, 0, 3, 0, 0, back, 0);
-		ratLoup = new Enemy("Rat-Loup", 50, 10);
-        petitRatLoup = new Enemy("Petit Rat-Loup", 30, 5);
-        enemies = new ArrayList<>();
-		enemies.add(ratLoup);
-		enemies.add(petitRatLoup);
-		weapons = ItemFactory.itemsAvailable();
+	private Hero hero;
+    private final List<Enemy> enemies;
+    
+	public Fight(Hero hero, List<Enemy> enemies) {
+		this.hero = Objects.requireNonNull(hero);
+		this.enemies = new ArrayList<>(Objects.requireNonNull(enemies));
 	}
 	
 	
 	// tirage de l'ennemi aléatoirement 
-	private static Enemy enemyToFight(ArrayList<Enemy> enemies) {
+	private static Enemy enemyToFight(List<Enemy> enemies) {
 		Objects.requireNonNull(enemies);
 		Random random = new Random();
         int randomIndex = random.nextInt(enemies.size());
@@ -45,73 +33,65 @@ public class Fight {
         
 	}
 	
-	// choix de l'arme
-	private static Weapon weaponChoice(int choice, ArrayList<Weapon> weapons) {
-		Objects.requireNonNull(weapons);
-		return weapons.stream()
-                .skip(choice)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Index invalide"));
-	}
-	
 	// cout d'utilisation d'une arme
-	private static void costWeapon(ItemTreasure item) {
+	private void costWeapon(FightItem item) {
 		Objects.requireNonNull(item);
-		// il faudrait un costEnergy, costMana et costGold ? dans les paramètres des items
-		hero.energy -= item.costEnergy();
-		hero.manaPoints -= item.costMana();
-	    ItemTreasure gold = ItemFactory.getItemByName("Gold");
-	    int costGold = item.costGold();
-	    // maj du nombre d'or 
-	    gold = gold.spend(costGold);
-	    // màj dans le sac à dos
-	    back.replaceItemInBackpack(gold);
-	}
-	
-	// attaque du hero. équipé -> boolean dans hero ?
-	private static void heroAttack(Enemy enemy) {
-		Objects.requireNonNull(enemy);
-		System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
-		List<ItemTreasure> itemInBackPack = hero.getBackPack();
-		// faire la méthode string pour avoir un bel affichage + les dégâts et la protection 
-		System.out.println(itemInBackPack);
-		// On récupère la saisie de l'utilisateur
-		Scanner scanner = new Scanner(System.in);
-		int choice = scanner.nextInt();
-		int index = choice - 1; // -1 car la liste commence à 1 lors de l'affichage
-		// On vérifie que l'index est valide
-		Objects.checkIndex(choice, itemInBackPack.size());
-		ItemTreasure item = itemInBackPack.get(index);
-	    System.out.println("Vous utilisez : " + item.name());
-	    // On récupère les effets de l'arme
-	    int damage = item.damage();
-	    enemy.takeDamage(damage);
-	}
-	
-	// augmentation de la protection du héro
-	private static void heroProtection() {
-		System.out.println("Vous avez choisi de vous protéger ! Quelle protection souhaitez vous utiliser ?\n");
-		List<ItemTreasure> itemInBackPack = hero.getBackPack();
-		System.out.println(itemInBackPack);
-		Scanner scanner = new Scanner(System.in);
-		int choice = scanner.nextInt();
-		int index = choice - 1;
-		Objects.checkIndex(choice, itemInBackPack.size());
-		ItemTreasure item = itemInBackPack.get(index);
-	    System.out.println("Vous utilisez : " + item.name());
-	    int protection = item.protection();
-	    hero.addProtection(protection);
+		switch(item.moneyType()) {
+		case GOLD -> { Gold gold = hero.getBackPack().getGold();
+				        if (gold == null) {
+				            throw new IllegalStateException("Pas d'or dans le sac !");
+				        }
+				        Gold newGold = gold.spend(item.cost());
+				        hero.getBackPack().replaceItem(newGold); }
+		case MANASTONE -> { ManaStone mana = hero.getBackPack().getManaStone();
+					        if (mana == null) {
+					            throw new IllegalStateException("Pas de pierres de mana dans le sac !");
+					        }
+					        ManaStone newMana = mana.spend(item.cost());
+					        hero.getBackPack().replaceItem(newMana); }
+		case ENERGY -> { hero = hero.useEnergy(item.cost()); }
+        default -> throw new IllegalStateException("Type de ressource inconnue !");
+		}
 	}
 	
 	// choix du hero (attaque ou aug niv protection)
-	private static void heroChoice(char choice, Enemy enemy) {
+	private Enemy heroChoice(char action, Enemy enemy, Scanner scanner) {
 		Objects.requireNonNull(enemy);
-		switch(choice) {
-		case 'A' -> heroAttack(enemy);
-		case 'P' -> heroProtection();
+		switch(action) {
+		case 'A' -> System.out.println("Vous avez choisi d'attaquer ! Quelle arme souhaitez vous utiliser ?\n");
+		case 'P' -> System.out.println("Vous avez choisi de vous protéger ! Quelle protection souhaitez vous utiliser ?\n");
 		default -> throw new IllegalArgumentException("Erreur : le choix n'est pas valide");
 		};
 		
+		List<Item> itemInBackPack = hero.getBackPack().getItem();
+		System.out.println(hero.getBackPack());
+		
+		int choice = scanner.nextInt();
+		int index = choice - 1;
+		
+		// On vérifie que l'index est valide parmi la liste des objets dans le sac
+		Objects.checkIndex(choice, itemInBackPack.size() + 1);
+		
+		Item selectedItem = itemInBackPack.get(index);
+
+	    // Vérifie que c'est un FightItem
+	    if (!(selectedItem instanceof FightItem fightItem)) {
+	        throw new IllegalStateException("Cet objet n’est pas un objet de combat !");
+	    }
+		
+		// On paie l'objet de combat
+		costWeapon(fightItem);
+		
+		System.out.println("Vous avez payé : " + fightItem.cost());
+				
+	    System.out.println("Vous utilisez : " + fightItem.name());
+	    
+	    // Appliquer l'effet selon le choix
+	    switch(action) {
+	        case 'A' -> { enemy = enemy.takeDamage(fightItem.damage()); hero = hero.addProtection(fightItem.protection()); }
+	        case 'P' -> hero = hero.addProtection(fightItem.protection());
+	    }
+	    return enemy;
 	}
 	
 	// choix de l'ennemi (attaque ou aug niv protection)
@@ -131,8 +111,8 @@ public class Fight {
 	}
 
 	// ennemi mort -> partie gagnée
-	public boolean winGame() {
-		if(enemy.healthPoints() <= 0) {
+	public boolean winGame(Enemy enemy) {
+		if(enemy.getHealthPoints() <= 0) {
 			System.out.println("Partie gagnée !\n");
 			return true;
 		}
@@ -141,7 +121,7 @@ public class Fight {
 	
 	// hero mort
 	public boolean lostGame() {
-		if(hero.healthPoints <= 0) {
+		if(hero.getHealthPoints() <= 0) {
 			System.out.println("Partie perdue !\n");
 			return true;
 		}
@@ -158,24 +138,32 @@ public class Fight {
 	public void fight() {
 		// à faire -> recup les anciens niveaux de vie, protection et équipements depuis la sauvegarde
 		Enemy enemy = enemyToFight(enemies);
+		System.out.println("Vous allez combattre : " + enemy.getName());
 		Scanner scanner = new Scanner(System.in);
-		while(!winGame() && !lostGame()) {
+		while(!winGame(enemy) && !lostGame()) {
 			// prévision enemi
 			var action = enemyChoice();
 			// choix hero
 			System.out.println("Héro, c'est à votre tour de jouer ! Quelle action voulez vous effectuer : attaquer(A) ou augmenter votre niveau de protection(P) ?\n");
 			char playerChoice = scanner.next().toUpperCase().charAt(0);
 			// action hero
-			heroChoice(playerChoice, enemy);
+			enemy = heroChoice(playerChoice, enemy, scanner);
 			// action ennemi
 			switch(action.choice()) {
 			case 'A' -> { System.out.println("L'ennemi vous a infligé " + action.ptsDegats() + " points de dégâts !");
-			hero.takeDamage(action.ptsDegats());
+			hero = hero.takeDamage(action.ptsDegats());
 			}
 			case 'P' -> { System.out.println("L'ennemi a augmenté son niveau de protection de " + action.protection() + " points !"); 
-			enemy.addProtection(action.protection());
+			enemy = enemy.addProtection(action.protection());
 			}
 			};
+			// Pour tests 
+			System.out.println("Points de vie du hero : " + hero.getHealthPoints());
+			System.out.println("Points de vie de l'ennemi : " + enemy.getHealthPoints());
+			System.out.println("Points de protection du hero : " + hero.getProtection());
+			System.out.println("Points de protection de l'ennemi : " + enemy.getProtection());
+			System.out.println("Points d'énergie du hero : " + hero.getEnergy());
 		}
+		scanner.close();
 	}
 }
