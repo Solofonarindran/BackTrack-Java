@@ -25,7 +25,7 @@ public class BackgroundComponent implements Component{
   }
   
   @Override
-  public void draw(Graphics2D g) {
+  public void draw(Graphics2D g, Component component) {
   	if(image != null) {
   		g.drawImage(image,0,0, width, height, null);
   	}else if(color != null) {
