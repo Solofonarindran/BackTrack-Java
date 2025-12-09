@@ -2,7 +2,7 @@ package fr.uge.data;
 
 import java.util.Objects;
 
-public class Hero implements Actor{
+public final class Hero implements Actor{
 	// statistiques de base
 	private final int healthPoints; //Points de vie actuels
 	private final int maxHealthPoints; // Points de vie maximum
