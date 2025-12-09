@@ -2,7 +2,7 @@ package fr.uge.data;
 
 import java.util.Objects;
 
-public class Hero {
+public class Hero implements Actor{
 	// statistiques de base
 	private final int healthPoints; //Points de vie actuels
 	private final int maxHealthPoints; // Points de vie maximum
@@ -140,7 +140,10 @@ public class Hero {
 	}
 	
   // Getters
+	
+	@Override
   public int getHealthPoint() { return healthPoints; }
+	@Override
   public int getMaxHealthPoint() { return maxHealthPoints; }
   public int getEnergy() { return energy; }
   public int getMaxEnergy() { return maxEnergy; }
