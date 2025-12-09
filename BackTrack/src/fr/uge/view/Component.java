@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 
 public interface Component {
 	
-	void draw(Graphics2D g);
+	void draw(Graphics2D g, Component component);
 	
 	default int[] getBounds() {
 		return new int[] {0,0,0,0};
@@ -12,4 +12,5 @@ public interface Component {
 	default boolean handleClick(int mouseX, int mouseY) {
 		return false;
 	}
+	
 }
