@@ -1,6 +1,6 @@
 package fr.uge.data;
 
-public interface Actor {
+public sealed interface Actor permits Hero{
 	int getHealthPoint();
 	int getMaxHealthPoint();
 }
