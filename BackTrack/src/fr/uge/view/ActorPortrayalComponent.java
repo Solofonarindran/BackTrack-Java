@@ -78,11 +78,13 @@ public class ActorPortrayalComponent implements Component{
     
     // Bordure
     g.setColor(Color.WHITE);
-    g.drawRect(barX, barY, barWidth, barHeight);
+    g.setStroke(new BasicStroke(3));
+    g.drawRoundRect(barX, barY, barWidth, barHeight,10,10);
+    
  // Texte
     g.setFont(new Font("Arial", Font.PLAIN, 10));
     String hpText = actor.getHealthPoint() + "/" + actor.getMaxHealthPoint();
-    g.drawString(hpText, barX + 2, barY + barHeight - 1);
+    g.drawString(hpText, barX + 2, barY - barHeight);
   	
 	}
 	
