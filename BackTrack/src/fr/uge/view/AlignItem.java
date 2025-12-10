@@ -1,0 +1,5 @@
+package fr.uge.view;
+
+public enum PositionTypeScreen {
+	TOPLEFT,TOPCENTER,TOPRIGHT,BOTTOMLEFT,BOTTOMCENTER,BOTTOMRIGHT,CENTER
+}
