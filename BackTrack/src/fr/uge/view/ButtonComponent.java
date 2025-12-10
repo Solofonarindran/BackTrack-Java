@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-import fr.uge.view.Component;
+
 
 public class ButtonComponent implements Component{
 	 private final int x, y, width, height;
@@ -28,8 +31,32 @@ public class ButtonComponent implements Component{
        this.hoverColor = color.brighter();
        this.onClick = onClick;
    }
-   
-   public void setHovered(boolean hovered) {
+ 
+ private static List<Integer> calculateMargin(AlignItem alignItem, int xResolution, int yResolution) {
+	 
+	 return switch(alignItem) {
+		 case TOPLEFT -> List.of((int)(xResolution * 0.2),(int)(yResolution * 0.2));
+		 case TOPCENTER -> List.of((int)(xResolution * 0.4),(int)(yResolution * 0.2));
+		 case TOPRIGHT -> List.of((int)(xResolution * 0.8),(int)(xResolution * 0.2));
+		 case BOTTOMLEFT -> List.of((int)(xResolution * 0.2),(int)(xResolution * 0.8));
+		 case BOTTOMCENTER -> List.of((int)(xResolution * 0.4),(int)(xResolution * 0.8));
+		 case BOTTOMRIGHT -> List.of((int)(xResolution * 0.8),(int)(xResolution * 0.8));
+		 default -> throw new IllegalArgumentException("Position non reconnu");
+	 };
+
+ }
+ public static ButtonComponent create(AlignItem aligneItem, int xResolution, int yResolution, String text, Color color,Runnable onClick) {
+	 Objects.requireNonNull(aligneItem);
+	 Objects.requireNonNull(text);
+	 Objects.requireNonNull(color);
+	 if( xResolution < 0 || yResolution < 0) {
+		 throw new IllegalArgumentException();
+	 }
+	 var x = calculateMargin(aligneItem, xResolution, yResolution).getFirst();
+	 var y = calculateMargin(aligneItem, xResolution, yResolution).getLast();
+	 return new ButtonComponent(x, y, xResolution, yResolution, text, color, onClick);
+ }
+ public void setHovered(boolean hovered) {
      this.hovered = hovered;
  }
 	
