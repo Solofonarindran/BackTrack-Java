@@ -1,5 +1,5 @@
 package fr.uge.view;
 
-public enum PositionTypeScreen {
+public enum AlignItem {
 	TOPLEFT,TOPCENTER,TOPRIGHT,BOTTOMLEFT,BOTTOMCENTER,BOTTOMRIGHT,CENTER
 }
