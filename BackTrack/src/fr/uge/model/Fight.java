@@ -1,5 +1,4 @@
 package fr.uge.model;
-//import fr.uge.data.BackPack;
 
 import fr.uge.data.Hero;
 import fr.uge.data.Enemy;
@@ -9,13 +8,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Objects;
-//import java.util.stream.Stream;
 
 
 public class Fight {
 	
 	private Hero hero;
     private final List<Enemy> enemies;
+    private int nbRefus = 0;
+
     
 	public Fight(Hero hero, List<Enemy> enemies) {
 		this.hero = Objects.requireNonNull(hero);
@@ -109,20 +109,78 @@ public class Fight {
 		};
 		return new EnemyAction(choice, ptsDegats, protection);
 	}
+	
+	// On récupère le trésor gagné 
+	public Item price() {
+		List<Item> itemsAvailable = ItemFactory.getCatalog();
+		Random random = new Random();
+		var price = itemsAvailable.get(random.nextInt(itemsAvailable.size()));
+		System.out.println("Félicitations ! Vous avez gagné : " + price + " !");
+		return price;
+	}
+	
+	public int malediction(Scanner scanner) {
+		Objects.requireNonNull(scanner);
+		if(nbRefus < 0) {
+			throw new IllegalArgumentException("Le nombre de refus ne peut pas être négatif !");
+		}
+		Malediction mal = Malediction.initMalediction();
+		System.out.println("L'ennemi vous a infligé une malédiction... L'acceptez vous ? (y/n)");
+		var choice = scanner.next().toLowerCase();
+		switch(choice) {
+		case "y" -> { System.out.println("Vous devez placer la malédiction dans votre BackPack.");
+					  Coordonate clickedCoord;
+					  hero.getBackPack().addEquipement(mal, clickedCoord); 
+		}
+		case "n" -> { System.out.println("Attention, un kème refus vous vaudra k points de dégâts !");
+					  nbRefus++;
+					  hero.takeDamage(nbRefus);
+		}
+		default -> throw new IllegalArgumentException("L'entrée saisie n'est pas valide.");
+		}
+		return nbRefus;
+	}
+	
+	// On veut se débarasser d'un item
+	public void getRidOf(Item item, Scanner scanner) {
+		System.out.println("Voulez vous vraiment vous débarraser de " + item + " ? (y/n)");
+		var choice = scanner.next().toLowerCase();
+		switch(choice) {
+		case "y" : hero.getBackPack().removeEquipment(item);
+		case "n" : System.out.println("Action annulée.");
+		default : throw new IllegalArgumentException("L'entrée saisie n'est pas valide.");
+		}
+	}
 
 	// ennemi mort -> partie gagnée
-	public boolean winGame(Enemy enemy) {
+	public boolean winGame(Enemy enemy, Scanner scanner) {
 		if(enemy.getHealthPoints() <= 0) {
 			System.out.println("Partie gagnée !\n");
+			Item price = price();
+			/*
+			 * A VOIR COMMENT INIT 
+			 */
+			Coordonate clickedCoord;
+			if(hero.getBackPack().addEquipement(price, clickedCoord)){
+				System.out.println("Vous avez placé : "  + price);
+			} else {
+				System.out.println(price.name() + " n'a pas pu être placé... Désirez vous vous débarasser d'un autre objet ? (y/n)");
+				var decision = scanner.next().toLowerCase();
+				switch(decision) {
+				case "y" : getRidOf(price, scanner);
+				case "n" : System.out.println("Le nouvel item est alors laissé...");
+				}
+			}
 			return true;
 		}
 		return false;
 	}
 	
 	// hero mort
-	public boolean lostGame() {
+	public boolean lostGame(Scanner scanner) {
 		if(hero.getHealthPoints() <= 0) {
 			System.out.println("Partie perdue !\n");
+			nbRefus = malediction(scanner);
 			return true;
 		}
 		return false;
@@ -140,7 +198,7 @@ public class Fight {
 		Enemy enemy = enemyToFight(enemies);
 		System.out.println("Vous allez combattre : " + enemy.getName());
 		Scanner scanner = new Scanner(System.in);
-		while(!winGame(enemy) && !lostGame()) {
+		while(!winGame(enemy, scanner) && !lostGame(scanner)) {
 			// prévision enemi
 			var action = enemyChoice();
 			// choix hero
