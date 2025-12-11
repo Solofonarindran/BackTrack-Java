@@ -17,9 +17,6 @@ public class BackPack {
 	
 	private final IdentityHashMap<Item, List<Coordonate>> equipments ;
 	
-	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
-	//private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
-	
 	private final List<List<Cell>> coordonates;
 	
 	private static final int MAX_WIDTH = 7;
@@ -88,7 +85,6 @@ public class BackPack {
 		Objects.requireNonNull(c);
 		return coordonates.get(c.y()).get(c.x()) instanceof Free;
 	}
-	
 	
 	// ajout d'un équipement dans le sac
 	public boolean addEquipement(Item equipement,Coordonate clickedCoord) {
