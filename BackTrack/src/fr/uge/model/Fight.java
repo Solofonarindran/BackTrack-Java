@@ -129,6 +129,9 @@ public class Fight {
 		var choice = scanner.next().toLowerCase();
 		switch(choice) {
 		case "y" -> { System.out.println("Vous devez placer la malédiction dans votre BackPack.");
+						/*
+						 * A INIT AVEC LES CLICKS
+						 */
 					  Coordonate clickedCoord;
 					  hero.getBackPack().addEquipement(mal, clickedCoord); 
 		}
@@ -158,7 +161,7 @@ public class Fight {
 			System.out.println("Partie gagnée !\n");
 			Item price = price();
 			/*
-			 * A VOIR COMMENT INIT 
+			 * A INIT AVEC LES CLICKS
 			 */
 			Coordonate clickedCoord;
 			if(hero.getBackPack().addEquipement(price, clickedCoord)){
