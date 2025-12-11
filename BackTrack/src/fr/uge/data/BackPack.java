@@ -1,9 +1,8 @@
 package fr.uge.data;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -19,17 +18,24 @@ public class BackPack {
 	private final IdentityHashMap<Item, List<Coordonate>> equipments ;
 	
 	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
-	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
+	//private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
 	
-	private static final String UNLOCKED = "unlocked";
-	private static final String DISPO = "dispo";
+	private final List<List<Cell>> coordonates;
 	
 	private static final int MAX_WIDTH = 7;
 	private static final int MAX_HEIGHT = 5;
 	
 	public BackPack() {
 		equipments = new IdentityHashMap<Item, List<Coordonate>>();
-		coordonates = new HashMap<Coordonate,Map<String,Boolean>>();
+		//coordonates = new HashMap<Coordonate,Map<String,Boolean>>();
+		coordonates = new ArrayList<>();
+		for(int x = 0; x < MAX_HEIGHT; x++) {
+			List<Cell> row = new ArrayList<>();
+			for(int y = 0; y < MAX_WIDTH; y++) {
+				row.add(new Locked());
+			}
+			coordonates.add(row);
+		}
 	}
 	
 	// Exemple de structure de données
@@ -41,32 +47,11 @@ public class BackPack {
 	//								: { false 						 }
 	
 	
-
-	// initialisation au milieu du sac
-//	public void initializeStartingGrid() {
-//		var intStreamWidth = IntStream.range(2, 5); // prendre le milieu de x
-//		var intStreamHeight = IntStream.range(1, 4); // prendre le milieu de y 
-//		
-//		intStreamWidth.forEach(x->{
-//			intStreamHeight.forEach(y->{
-//				var coord = new Coordonate(x, y);
-//				var state = new HashMap<String,Boolean>();
-//				state.put(UNLOCKED, true);
-//				state.put(DISPO, true);
-//				
-//				coordonates.put(coord, state);
-//			});
-//		});
-//	}
-	
 	public void initializeStartingGrid() {
+		// On prend le milieu de x et de y
 	    IntStream.range(2, 5).forEach(x -> {
 	        IntStream.range(1, 4).forEach(y -> {
-	            var coord = new Coordonate(x, y);
-	            var state = new HashMap<String, Boolean>();
-	            state.put(UNLOCKED, true);
-	            state.put(DISPO, true);
-	            coordonates.put(coord, state);
+	            coordonates.get(y).set(x, new Free()); 
 	        });
 	    });
 	}
@@ -78,32 +63,30 @@ public class BackPack {
 		if(coordonate.x() > MAX_WIDTH || coordonate.y() > MAX_HEIGHT) {
 			throw new IllegalArgumentException("Débordement du coordonné");
 		}
-		var state = coordonates.computeIfAbsent(coordonate, b ->new HashMap<String, Boolean>());
-		state.put(UNLOCKED, true);
-		state.put(DISPO, true);
+		coordonates.get(coordonate.y()).set(coordonate.x(), new Free());
 	}
 	
 	// mis à jour de la disponibilité de coordonées
-	// value true si dispo
-	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
-		Objects.requireNonNull(coordonate);
-		coordonates.entrySet().stream()
-													.filter(e->e.getKey().equals(coordonate))
-													.findFirst()
-													.ifPresent(e->e.getValue().put(DISPO, value));
-
+	private void setCellToFree(Coordonate c) {
+	    Objects.requireNonNull(c);
+	    if (coordonates.get(c.y()).get(c.x()) instanceof Locked) {
+	        throw new IllegalStateException("Impossible de libérer une case bloquée !");
+	    }
+	    coordonates.get(c.y()).set(c.x(), new Free());
 	}
-	
+
+	private void setCellToItem(Coordonate c, Item item) {
+	    Objects.requireNonNull(c);
+	    Objects.requireNonNull(item);
+	    coordonates.get(c.y()).set(c.x(), new ContainsItem(item));
+	}
+
 	// savoir si la place de coordonné peut contenir un équipement
 	// check d'une seule coordonnée
 	// l'ensemble des coordonées d'un item est checké dans le méthode addEquipement (var isAccepted)
-	private boolean isAccepted(Coordonate coordonate) {
-		Objects.requireNonNull(coordonate);
-		return coordonates.entrySet().stream()
-		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
-									 .map(e->e.getValue().get(DISPO))
-									 .findFirst()
-									 .orElseGet(()->false);
+	private boolean isAccepted(Coordonate c) {
+		Objects.requireNonNull(c);
+		return coordonates.get(c.y()).get(c.x()) instanceof Free;
 	}
 	
 	
@@ -123,10 +106,11 @@ public class BackPack {
 			return false;
 		}
 		equipments.put(equipement, coordonateAbsolute);
-		coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, false)); // mettre les coordonnées indisponible
+		coordonateAbsolute.forEach(c -> setCellToItem(c, equipement)); // mettre les coordonnées indisponible
 		return true;
 	}
-	
+
+
 	// enlever l'item dans sac
 	public boolean removeEquipment(Item equipment) {
 		Objects.requireNonNull(equipment);
@@ -138,7 +122,7 @@ public class BackPack {
 		var coordAbsolutes = equipments.get(equipment);
 		
 		//Libérer les cases 
-		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
+		coordAbsolutes.forEach(c->setCellToFree(c));
 		equipments.remove(equipment);
 		return true;
 	}
@@ -152,46 +136,103 @@ public class BackPack {
 			return false;
 		}
 		
+		// On récupère les coordonnées de l'item et on les set à free
 		var oldCoordAbsolutes = equipments.get(equipment);
-		var accepted = addEquipement(equipment, newClickedCoord);
-		
-		if(accepted) {
-		//les anciens coordonées sont disponibles
-			oldCoordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
-		}
-		return accepted;
+	    oldCoordAbsolutes.forEach(this::setCellToFree);
+	    
+	    // On récupère les nouvelles coordonnées possibles à jour
+	    var references = equipment.references();
+	    var newCoords = Coordonate.toAbsolute(references, newClickedCoord);
+	    
+	    boolean accepted = newCoords.stream().allMatch(this::isAccepted);
+
+	    if (!accepted) {
+	        // Si le placement voulu n'est pas possible -> on replace à l'endroit précédent
+	        oldCoordAbsolutes.forEach(c -> setCellToItem(c, equipment));
+	        return false;
+	    }
+
+	    // Mise à jour du sac
+	    equipments.put(equipment, newCoords);
+	    newCoords.forEach(c -> setCellToItem(c, equipment));
+	    return true;
 	}
-	
-	
-	public void rotateEquipment(Item item) {
+
+
+	// Méthode qui effectue la rotation de l'objet et met à jour ses coordonnées
+	public boolean rotateEquipment(Item item) {
 		Objects.requireNonNull(item);
 		var oldCoord = equipments.get(item);
+		if (oldCoord == null) return false;
 		
-		// Map<Item,List<Coordonate>>
-		var rotatedItem = ItemRotation.rotateItem(item, oldCoord);
-		//var success = false;
-		rotatedItem.entrySet().forEach(e->{
-			moveEquipment(e.getKey(), e.getValue().getFirst());
-		});
+		// On utilise la méthode du pivot
+		var pivot = oldCoord.get(0);
+		
+		oldCoord.forEach(this::setCellToFree);
+		
+		var oldRelCoords = item.references();
+		var rotatedEntry = ItemRotation.rotateItem(item, oldRelCoords);
+		
+		var newItem = rotatedEntry.keySet().iterator().next();
+	    var newRelCoords = rotatedEntry.get(newItem);
+	    var newAbsCoords = Coordonate.toAbsolute(newRelCoords, pivot);
+	    boolean accepted = newAbsCoords.stream().allMatch(this::isAccepted);
+	    if (!accepted) {
+        // Restaurer ancien placement
+	    	oldCoord.forEach(c -> setCellToItem(c, item));
+	    	return false;
+		}
+
+	    equipments.remove(item);
+	    equipments.put(newItem, newAbsCoords);
+	    newAbsCoords.forEach(c -> setCellToItem(c, newItem));
+	    return true;
 	
 	}
 	
-	public void replaceItem(Item newItem) {
+	/*
+	 * Méthode qui remplace un item dans le backpack
+	 * On récupère l'ancien item s'il existe
+	 * On récuèore ses coordonnées
+	 * On utilise la méthode du pivot pour recalculer ses nouvelles coordonées
+	 * On met à jour ses anciennes coordonnées (à Free)
+	 * On créé ses nouvelles coordonnées à partir du pivot
+	 * On place l'item aux nouvelles coordonnées en fonction de leur validité
+	 */
+	public boolean replaceItem(Item newItem) {
 	    Objects.requireNonNull(newItem);
-	    // trouver l'ancien item exact (même instance de classe + même nom)
+	    // On trouve l'ancien item exact (même instance de classe + même nom)
 	    var oldItemEntry = equipments.keySet().stream()
+	    		/*
+	    		 * A VOIR S'IL FAUT REECRIRE LE EQUALS + HASHCODE POUR CHAQUE CLASSE  
+	    		 */
 	            .filter(item -> item.getClass() == newItem.getClass() && item.name().equals(newItem.name()))
 	            .findFirst();
+	    
+	    if (oldItemEntry.isEmpty()) return false;
+	    
+	    // On récupère l'item
+	    Item oldItem = oldItemEntry.get();
+	    
+	    var oldCoords = equipments.get(oldItem);
+	    // On utilise la méthode du pivot pour calculer les nouvelles coordonnées
+        var pivot = oldCoords.get(0);
+        oldCoords.forEach(this::setCellToFree);
+	    var newCoords = Coordonate.toAbsolute(newItem.references(), pivot);
 
-	    oldItemEntry.ifPresent(old -> {
-	        var oldCoords = equipments.get(old);
-	        removeEquipment(old); // libère les cases
-	        // créer le nouvel item mais en réutilisant les mêmes coordonnées
-	        equipments.put(newItem, oldCoords);
-	        oldCoords.forEach(c -> upgradeCoordonateDispo(c, false));
-	    });
+	    boolean accepted = newCoords.stream().allMatch(this::isAccepted);
+	    // Si les coordonnées ne sont pas acceptées -> on restaure les anciennes cases
+	    if (!accepted) {
+	        oldCoords.forEach(c -> setCellToItem(c, oldItem));
+	        return false;
+	    }
+	    equipments.remove(oldItem);
+	    equipments.put(newItem, newCoords);
+
+	    newCoords.forEach(c -> setCellToItem(c, newItem));
+
+	    return true;
 	}
-
 
 	public List<Item> getItem() {
 		return equipments.keySet()
