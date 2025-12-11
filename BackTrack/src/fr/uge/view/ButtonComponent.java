@@ -35,12 +35,13 @@ public class ButtonComponent implements Component{
  private static List<Integer> calculateMargin(AlignItem alignItem, int xResolution, int yResolution) {
 	 
 	 return switch(alignItem) {
+		 case CENTER -> List.of((int)(xResolution * 0.4),(int)(yResolution * 0.4));
 		 case TOPLEFT -> List.of((int)(xResolution * 0.2),(int)(yResolution * 0.2));
 		 case TOPCENTER -> List.of((int)(xResolution * 0.4),(int)(yResolution * 0.2));
-		 case TOPRIGHT -> List.of((int)(xResolution * 0.8),(int)(xResolution * 0.2));
-		 case BOTTOMLEFT -> List.of((int)(xResolution * 0.2),(int)(xResolution * 0.8));
-		 case BOTTOMCENTER -> List.of((int)(xResolution * 0.4),(int)(xResolution * 0.8));
-		 case BOTTOMRIGHT -> List.of((int)(xResolution * 0.8),(int)(xResolution * 0.8));
+		 case TOPRIGHT -> List.of((int)(xResolution * 0.9),(int)(yResolution * 0.05));
+		 case BOTTOMLEFT -> List.of((int)(xResolution * 0.2),(int)(yResolution * 0.8));
+		 case BOTTOMCENTER -> List.of((int)(xResolution * 0.4),(int)(yResolution * 0.8));
+		 case BOTTOMRIGHT -> List.of((int)(xResolution * 0.8),(int)(yResolution * 0.8));
 		 default -> throw new IllegalArgumentException("Position non reconnu");
 	 };
 
@@ -54,7 +55,9 @@ public class ButtonComponent implements Component{
 	 }
 	 var x = calculateMargin(aligneItem, xResolution, yResolution).getFirst();
 	 var y = calculateMargin(aligneItem, xResolution, yResolution).getLast();
-	 return new ButtonComponent(x, y, xResolution, yResolution, text, color, onClick);
+	 var width = (int) (xResolution * 0.05);
+	 var height = (int) (yResolution * 0.03);
+	 return new ButtonComponent(x, y, width, height, text, color, onClick);
  }
  public void setHovered(boolean hovered) {
      this.hovered = hovered;
@@ -66,7 +69,7 @@ public class ButtonComponent implements Component{
     g.fillRoundRect(x, y, width, height, 10, 10);
     
     // Bordure
-    g.setColor(Color.WHITE);
+    g.setColor(Color.GRAY);
     g.setStroke(new BasicStroke(2));
     g.drawRoundRect(x, y, width, height, 10, 10);
     
