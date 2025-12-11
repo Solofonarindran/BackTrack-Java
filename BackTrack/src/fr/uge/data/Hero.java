@@ -97,19 +97,6 @@ public final class Hero {
 		return new Hero(healthPoints, maxHealthPoints, maxEnergy, maxEnergy, protection, backPack, keys, experience, level);
 	}
 	
-//	private boolean useMana(int cost) {
-//		if(manaPoints >= cost) {
-//			manaPoints-= cost;
-//			return true;
-//		}
-//		return false;
-//	}
-//	
-//	//incrémenter la valeur de mana
-//	public Hero increaseMana(int amount) {
-//		var newManaPoints = manaPoints + amount;
-//		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, newManaPoints, protection, backPack, keys, experience, level);
-//	}
 	
 	//Exemple : niveau 2 = 100 XP, niveau 3 = 200 XP...
 	private int getExperienceForNextLevel() {
@@ -151,11 +138,6 @@ public final class Hero {
 		return new Hero(healthPoints, maxHealthPoints, energy, maxEnergy, protection, backPack, keys++, experience, level);
 	}
 	
-	// ajout d'un getBackPack?
-//	public List<Item> getBackPack() {
-//		return backPack.getItem();
-//	}
-	
 	
 	public int getHealthPoints() {
 		return healthPoints;
@@ -171,6 +153,10 @@ public final class Hero {
 	
 	public int getEnergy() {
 		return energy;
+	}
+	
+	public int getMaxHealthPoints() {
+		return maxHealthPoints;
 	}
 	
 	@Override
