@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+
+import com.github.forax.zen.ApplicationContext;
+
 import java.util.Objects;
 
 
@@ -127,7 +130,7 @@ public class Fight {
 		return price;
 	}
 	
-	public int malediction(Scanner scanner) {
+	public int malediction(Scanner scanner, ApplicationContext context) {
 		Objects.requireNonNull(scanner);
 		if(nbRefus < 0) {
 			throw new IllegalArgumentException("Le nombre de refus ne peut pas être négatif !");
@@ -137,10 +140,7 @@ public class Fight {
 		var choice = scanner.next().toLowerCase();
 		switch(choice) {
 		case "y" -> { IO.println("Vous devez placer la malédiction dans votre BackPack.");
-						/*
-						 * A INIT AVEC LES CLICKS
-						 */
-					  Coordonate clickedCoord;
+					  Coordonate clickedCoord = hero.getBackPack().getClickedCoordonates(context);
 					  hero.getBackPack().addEquipement(mal, clickedCoord); 
 		}
 		case "n" -> { IO.println("Attention, un kème refus vous vaudra k points de dégâts !");
@@ -164,14 +164,11 @@ public class Fight {
 	}
 
 	// ennemi mort -> partie gagnée
-	public boolean winGame(Enemy enemy, Scanner scanner) {
+	public boolean winGame(Enemy enemy, Scanner scanner, ApplicationContext context) {
 		if(enemy.getHealthPoints() <= 0) {
 			IO.println("Partie gagnée !\n");
 			Item price = price();
-			/*
-			 * A INIT AVEC LES CLICKS
-			 */
-			Coordonate clickedCoord;
+			Coordonate clickedCoord = hero.getBackPack().getClickedCoordonates(context);
 			if(hero.getBackPack().addEquipement(price, clickedCoord)){
 				IO.println("Vous avez placé : "  + price);
 			} else {
@@ -188,16 +185,26 @@ public class Fight {
 	}
 	
 	// hero mort
-	public boolean lostGame(Enemy enemy, Scanner scanner) {
+	public boolean lostGame(Enemy enemy, Scanner scanner, ApplicationContext context) {
 		if(hero.getHealthPoints() <= 0) {
 			IO.println("Partie perdue !\n");
-			nbRefus = malediction(scanner);
+			nbRefus = malediction(scanner, context);
+			
+			// Lorsque l'ennemi meurt le hero gagne de l'experience
 			hero.gainExperience(enemy.getNbXp());
-			/*
-			 * A INIT AVEC LES CLICKS
-			 */
-			List<Coordonate> clickedCoord;
-			hero.getBackPack().extendBackPack(enemy.getNbCases(), clickedCoord);
+			
+			int levelsGained = hero.gainExperience(enemy.getNbXp());
+			// Si on a pas augmenté de niveau -> le sac n'est pas agrandit
+			if(levelsGained == 0) return true;
+			
+			// Sinon, on gagne des nouvelles cases à placer dans le backpack 
+			List<Coordonate> clickedCoord = new ArrayList<Coordonate>();
+			var nbCases = enemy.getNbCases();
+			while(nbCases > 0) {
+				clickedCoord.add(hero.getBackPack().getClickedCoordonates(context));
+				nbCases--;
+			}
+			hero.getBackPack().extendBackPack(clickedCoord.size(), clickedCoord);
 			return true;
 		}
 		return false;
@@ -215,7 +222,8 @@ public class Fight {
 		Enemy enemy = enemyToFight(enemies);
 		IO.println("Vous allez combattre : " + enemy.getName());
 		Scanner scanner = new Scanner(System.in);
-		while(!winGame(enemy, scanner) && !lostGame(enemy, scanner)) {
+		ApplicationContext context; //??
+		while(!winGame(enemy, scanner, context) && !lostGame(enemy, scanner, context)) {
 			// prévision enemi
 			var action = enemyChoice();
 			// choix hero
