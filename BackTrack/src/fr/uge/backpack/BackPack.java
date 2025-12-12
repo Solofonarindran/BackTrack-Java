@@ -1,4 +1,4 @@
-package fr.uge.data;
+package fr.uge.backpack;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import fr.uge.model.Coordonate;
-import fr.uge.model.FightItem;
-import fr.uge.model.Gold;
-import fr.uge.model.Item;
-import fr.uge.model.ManaStone;
-import fr.uge.model.Ressources;
+import fr.uge.item.FightItem;
+import fr.uge.item.Gold;
+import fr.uge.item.Item;
+import fr.uge.item.ManaStone;
+import fr.uge.item.Ressources;
 
 public class BackPack {
 	
@@ -19,8 +18,8 @@ public class BackPack {
 	
 	private final List<List<Cell>> coordonates;
 	
-	private static final int MAX_WIDTH = 7;
-	private static final int MAX_HEIGHT = 5;
+	private static int MAX_WIDTH = 7;
+	private static int MAX_HEIGHT = 5;
 	
 	public BackPack() {
 		equipments = new IdentityHashMap<Item, List<Coordonate>>();
@@ -154,7 +153,6 @@ public class BackPack {
 	    return true;
 	}
 
-
 	// Méthode qui effectue la rotation de l'objet et met à jour ses coordonnées
 	public boolean rotateEquipment(Item item) {
 		Objects.requireNonNull(item);
@@ -164,6 +162,7 @@ public class BackPack {
 		// On utilise la méthode du pivot
 		var pivot = oldCoord.get(0);
 		
+		// On remet les anciennes cellules à Free
 		oldCoord.forEach(this::setCellToFree);
 		
 		var oldRelCoords = item.references();
@@ -228,6 +227,44 @@ public class BackPack {
 	    newCoords.forEach(c -> setCellToItem(c, newItem));
 
 	    return true;
+	}
+	
+	// Méthode qui vérifie qu'une case peut être débloquée pour étendre le backpack
+	private boolean isExpandable(Coordonate c) {
+	    Objects.requireNonNull(c);
+	    
+	    if (c.x() < 0 || c.x() >= MAX_WIDTH || c.y() < 0 || c.y() >= MAX_HEIGHT) {
+	        return false;
+	    }
+
+	    // doit être Locked
+	    if (!(coordonates.get(c.y()).get(c.x()) instanceof Locked)) {
+	        return false;
+	    }
+
+	    // doit être collé à une case Free
+	    return coordonates.get(c.y()).get(c.x() + 1) instanceof Free || 
+	    	   coordonates.get(c.y()).get(c.x() - 1) instanceof Free || 
+	    	   coordonates.get(c.y() + 1).get(c.x() + 1) instanceof Free || 
+	    	   coordonates.get(c.y() - 1).get(c.x() + 1) instanceof Free;
+	}
+	
+	// Méthode qui agrandit le backpack
+	public void extendBackPack(int nbCases, List<Coordonate> clickedCoord) {
+		Objects.requireNonNull(clickedCoord);
+		int added = 0;
+		for(var c: clickedCoord) {
+			if(added >= nbCases) {
+				break;
+			}
+			if(isExpandable(c)) {
+				unlockedCoordonate(c);
+				added++;
+			}
+		}
+		if(added < nbCases) {
+			IO.println("Toutes les cases n'ont pas pu être ajoutées.");
+		}
 	}
 
 	public List<Item> getItem() {
