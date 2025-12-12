@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import com.github.forax.zen.Event;
+import com.github.forax.zen.PointerEvent;
+import com.github.forax.zen.ApplicationContext;
+
 import fr.uge.item.FightItem;
 import fr.uge.item.Gold;
 import fr.uge.item.Item;
@@ -50,6 +54,23 @@ public class BackPack {
 	            coordonates.get(y).set(x, new Free()); 
 	        });
 	    });
+	}
+	
+	public Coordonate getClickedCoordonates(ApplicationContext context) {
+		for(;;) {
+			Event event = context.pollOrWaitEvent(20); 
+			if(event == null) {
+				continue;
+			}
+			switch(event) { 
+			case PointerEvent pointerEvent -> { if (pointerEvent.action()== PointerEvent.Action.POINTER_DOWN) {
+													var location = pointerEvent.location();
+													Coordonate clickedCoords = new Coordonate(location.x(), location.y());
+													return clickedCoords;
+			}}
+			default -> throw new IllegalArgumentException("Unexpected value: " + event);
+			}
+		}
 	}
 	
 	// cette méthode déverouille une case du sac.
@@ -266,6 +287,7 @@ public class BackPack {
 			IO.println("Toutes les cases n'ont pas pu être ajoutées.");
 		}
 	}
+	
 
 	public List<Item> getItem() {
 		return equipments.keySet()
