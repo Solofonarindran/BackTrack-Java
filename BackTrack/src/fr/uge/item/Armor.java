@@ -1,9 +1,11 @@
-package fr.uge.model;
+package fr.uge.item;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import fr.uge.backpack.Coordonate;
 
 
 // references sont des models de coordonnées

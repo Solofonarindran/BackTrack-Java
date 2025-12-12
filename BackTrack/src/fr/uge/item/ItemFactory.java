@@ -1,4 +1,4 @@
-package fr.uge.model;
+package fr.uge.item;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package fr.uge.data;
+package fr.uge.actors;
 
 import java.util.Objects;
 
@@ -9,9 +9,11 @@ public final class Enemy {
 	private int maxHealthPoints; // Points de vie maximum
 	private int protection; // Point de protection temporaire
 	private String name;
+	private int nbXp; // points d'xp qu'on gagne grâce à l'ennemi
+	private int nbCases; // nombre de cases qu'on gagne grâce à l'ennemi
 	
 	
-	public Enemy(String name, int healthPoints, int maxHealthPoints, int protection) {
+	public Enemy(String name, int healthPoints, int maxHealthPoints, int protection, int nbXp, int nbCases) {
 		Objects.requireNonNull(name);
 		if (maxHealthPoints <= 0) {
             throw new IllegalArgumentException("Les PV maximum doivent être > 0");
@@ -19,10 +21,18 @@ public final class Enemy {
         if (protection < 0) {
             throw new IllegalArgumentException("La protection ne peut être négative");
         }
+        if (nbXp < 0) {
+            throw new IllegalArgumentException("Les points d'expérience ne peuvent pas être négatifs");
+        }
+        if (nbCases < 0) {
+            throw new IllegalArgumentException("Le nombre de cases ne peut pas être négatif");
+        }
         this.name = name;
 		this.healthPoints = healthPoints;
 		this.maxHealthPoints = maxHealthPoints;
 		this.protection = protection;
+		this.nbXp = nbXp;
+		this.nbCases = nbCases;
 
 	}
 	
@@ -38,7 +48,7 @@ public final class Enemy {
 		if(protection > 0) {
 			if(protection >= damage) {
 				newProtection = protection - damage;
-				return new Enemy(name, healthPoints, maxHealthPoints, newProtection);
+				return new Enemy(name, healthPoints, maxHealthPoints, newProtection, nbXp, nbCases);
 			} else {
 				restDamage = damage - protection;
 				newProtection = 0;
@@ -46,19 +56,19 @@ public final class Enemy {
 		}
 	  // si non le dégât s'implique directement au point de vie (healthPoint) de 
 		var newHealthPoints = Math.max(0, healthPoints - restDamage);
-		return new Enemy(name, newHealthPoints, maxHealthPoints, newProtection);
+		return new Enemy(name, newHealthPoints, maxHealthPoints, newProtection, nbXp, nbCases);
 	}
 
 	
 	// méthode pour incrémenter la protection 
 	public Enemy addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
 		var newProtection = protection + amount;
-		return new Enemy(name, healthPoints, maxHealthPoints, newProtection);
+		return new Enemy(name, healthPoints, maxHealthPoints, newProtection, nbXp, nbCases);
 	}
 	
 	// réinitialisé la protection
 	public Enemy resetProtection() {
-		return new Enemy(name, healthPoints, maxHealthPoints, 0);
+		return new Enemy(name, healthPoints, maxHealthPoints, 0, nbXp, nbCases);
 	}
 	
 	public int getHealthPoints() {
@@ -71,6 +81,14 @@ public final class Enemy {
 	
 	public int getProtection() {
 		return protection;
+	}
+	
+	public int getNbXp() {
+		return nbXp;
+	}
+	
+	public int getNbCases() {
+		return nbCases;
 	}
 	
 	@Override

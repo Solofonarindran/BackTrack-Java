@@ -1,6 +1,8 @@
-package fr.uge.model;
+package fr.uge.item;
 
 import java.util.List;
+
+import fr.uge.backpack.Coordonate;
 
 public record Malediction(String name, Rarity rarity, List<Coordonate> references) implements Item{
 	

@@ -1,17 +1,17 @@
-package fr.uge.data;
+package fr.uge.backpack;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import fr.uge.model.Armor;
-import fr.uge.model.Clef;
-import fr.uge.model.Consumable;
-import fr.uge.model.Coordonate;
-import fr.uge.model.Gold;
-import fr.uge.model.Item;
-import fr.uge.model.Magic;
-import fr.uge.model.Weapon;
+
+import fr.uge.item.Armor;
+import fr.uge.item.Clef;
+import fr.uge.item.Consumable;
+import fr.uge.item.Gold;
+import fr.uge.item.Item;
+import fr.uge.item.Magic;
+import fr.uge.item.Weapon;
 
 public class ItemRotation {
 	

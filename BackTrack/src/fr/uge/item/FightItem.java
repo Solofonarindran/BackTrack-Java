@@ -1,5 +1,4 @@
-package fr.uge.model;
-
+package fr.uge.item;
 
 public sealed interface FightItem permits Armor, Weapon, Magic {
 	int damage();

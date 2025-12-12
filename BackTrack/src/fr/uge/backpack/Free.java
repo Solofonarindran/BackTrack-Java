@@ -1,4 +1,4 @@
-package fr.uge.data;
+package fr.uge.backpack;
 
 public final class Free implements Cell {
 

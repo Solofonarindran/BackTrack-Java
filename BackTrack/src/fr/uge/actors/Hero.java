@@ -1,6 +1,8 @@
-package fr.uge.data;
+package fr.uge.actors;
 
 import java.util.Objects;
+
+import fr.uge.backpack.BackPack;
 
 public final class Hero {
 	// statistiques de base
@@ -108,8 +110,8 @@ public final class Hero {
 		experience -= getExperienceForNextLevel();
 		level ++;
 		
-		System.out.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
-    System.out.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
+		IO.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
+    IO.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
 	}
 	// xp point d'expérience qu'on a
 	

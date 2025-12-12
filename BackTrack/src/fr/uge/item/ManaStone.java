@@ -1,7 +1,9 @@
-package fr.uge.model;
+package fr.uge.item;
 
 import java.util.List;
 import java.util.Objects;
+
+import fr.uge.backpack.Coordonate;
 
 public record ManaStone(String name, Rarity rarity, int quantity, List<Coordonate> references) implements Item, Ressources {
 

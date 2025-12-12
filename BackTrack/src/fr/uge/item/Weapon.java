@@ -1,8 +1,10 @@
-package fr.uge.model;
+package fr.uge.item;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import fr.uge.backpack.Coordonate;
 
 public record Weapon(String name, WeaponType type, WeaponClass classe, Rarity rarity,
 		 int damage, int protection, RessourcesType moneyType, int cost, List<Coordonate> references) implements Item, FightItem {

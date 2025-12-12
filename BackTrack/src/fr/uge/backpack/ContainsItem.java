@@ -1,6 +1,6 @@
-package fr.uge.data;
+package fr.uge.backpack;
 
-import fr.uge.model.Item;
+import fr.uge.item.Item;
 
 public final class ContainsItem implements Cell {
 
