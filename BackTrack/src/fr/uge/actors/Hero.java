@@ -111,18 +111,21 @@ public final class Hero {
 		level ++;
 		
 		IO.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
-    IO.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
+		IO.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
 	}
-	// xp point d'expérience qu'on a
 	
-	public void gainExperience(int xp) {
+	// xp point d'expérience qu'on a
+	public int gainExperience(int xp) {
 		if(xp < 0) {
 			throw new IllegalArgumentException(" expérience doit toujours positive");
 		}
+		int levelsGained = 0;
 		experience += xp;
 		while(experience >= getExperienceForNextLevel()) {
 			levelUp();
+			levelsGained++;
 		}
+		return levelsGained;
 	}
 	
 	
