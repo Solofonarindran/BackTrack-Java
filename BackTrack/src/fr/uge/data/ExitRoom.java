@@ -1,4 +1,5 @@
-package fr.uge.model;
+package fr.uge.data;
+
 
 public final class ExitRoom implements Room{
 	private final int targetFloor;
@@ -42,6 +43,6 @@ public final class ExitRoom implements Room{
   
   @Override
   public String toString() {
-      return used ? "░░" : "🚀";
+      return used ? "🚪" : "🚀";
   }
 }
