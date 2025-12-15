@@ -11,8 +11,8 @@ import javax.imageio.ImageIO;
 
 import com.github.forax.zen.ApplicationContext;
 
-import fr.uge.data.Enemy;
-import fr.uge.data.Hero;
+import fr.uge.model.Enemy;
+import fr.uge.model.Hero;
 
 
 public class Index {
@@ -56,6 +56,8 @@ public class Index {
 		  
 		  // Enemy
 		  ActorPortrayalComponent.create(profil("images/enemies.png"),xResolution, yResolution, enemy).draw(g, null);
+		  
+		  ButtonComponent.create(AlignItem.TOPRIGHT, xResolution, yResolution, "carte", Color.WHITE, null).draw(g, null);
 			
 		} catch (IOException e) {
 			System.err.println("Fichier inaccessible");
