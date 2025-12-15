@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import fr.uge.model.Armor;
 import fr.uge.model.ArmorType;
 import fr.uge.model.Consumable;
+import fr.uge.model.Hero;
 import fr.uge.model.Item;
 import fr.uge.model.Magic;
 import fr.uge.model.Weapon;
