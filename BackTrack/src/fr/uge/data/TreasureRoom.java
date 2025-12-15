@@ -3,6 +3,8 @@ package fr.uge.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.uge.model.Item;
+
 public record TreasureRoom(List<Item> treasures, boolean isVisited) implements Room{
 	
 	// création d'une liste vide d'item et non visité
