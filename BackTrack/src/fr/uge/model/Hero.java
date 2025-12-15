@@ -1,6 +1,8 @@
-package fr.uge.data;
+package fr.uge.model;
 
 import java.util.Objects;
+
+import fr.uge.data.BackPack;
 
 public final class Hero implements Actor{
 	// statistiques de base
