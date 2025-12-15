@@ -3,8 +3,8 @@ package fr.uge.controller;
 
 import fr.uge.data.Dungeon;
 import fr.uge.data.Floor;
-import fr.uge.model.Direction;
-import fr.uge.model.GateRoom;
+import fr.uge.data.GateRoom;
+
 
 
 /**
