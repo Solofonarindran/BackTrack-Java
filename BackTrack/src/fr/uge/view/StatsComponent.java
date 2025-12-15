@@ -5,7 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.Objects;
 
-import fr.uge.data.Hero;
+import fr.uge.model.Hero;
 
 public record StatsComponent(int marginLeft, int marginTop, Hero hero) implements Component{
 	public StatsComponent {
