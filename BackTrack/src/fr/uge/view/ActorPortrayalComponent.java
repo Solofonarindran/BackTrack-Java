@@ -6,9 +6,9 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import fr.uge.data.Actor;
-import fr.uge.data.Enemy;
-import fr.uge.data.Hero;
+import fr.uge.model.Actor;
+import fr.uge.model.Enemy;
+import fr.uge.model.Hero;
 
 public class ActorPortrayalComponent implements Component{
 	private final int marginLeft;
