@@ -1,5 +1,6 @@
 package fr.uge.data;
 
+import fr.uge.model.Hero;
 import fr.uge.model.Item;
 
 public interface SynergyEffect {
