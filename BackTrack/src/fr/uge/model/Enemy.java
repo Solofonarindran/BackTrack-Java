@@ -1,6 +1,8 @@
-package fr.uge.data;
+package fr.uge.model;
 
 import java.util.Objects;
+
+import fr.uge.data.BackPack;
 
 public final class Enemy implements Actor{
 	// statistiques de base
@@ -137,6 +139,13 @@ public final class Enemy implements Actor{
 		while(experience >= getExperienceForNextLevel()) {
 			levelUp();
 		}
+	}
+	
+	
+	/// Pour le moment , on le return par true.
+	///on changera après
+	public boolean isDead() {
+		return true;
 	}
 	
   // Getters
