@@ -24,7 +24,9 @@ public enum CombatActionType {
    POISON("Poison", "🧪", "empoisonne la cible"),
    WEAKEN("Affaiblir", "📉", "réduit les dégâts de la cible"),
    CURSE("Malédiction", "💀", "place une malédiction dans le sac"),
-
+   
+   // Prépare une attaque puissante
+   CHARGE("Charge", "💨", "prépare une attaque puissante"),
    // Aucune action
    IDLE("Repos", "💤", "ne fait rien");
 	
