@@ -41,6 +41,7 @@ public record CombatAction(CombatActionType type, int value, int repeatCount) {
       case POISON -> String.format("%s Poison → %d dégâts/tour", type.getIcon(), value);
       case WEAKEN -> String.format("%s Affaiblir → -%d dégâts", type.getIcon(), value);
       case CURSE -> String.format("%s Malédiction → ajoute au sac", type.getIcon());
+      case CHARGE -> String.format("%s Charge → prépare attaque (%d)", type.getIcon(), value);
       case IDLE -> String.format("%s Repos → ne fait rien", type.getIcon());
 		};
 	}
@@ -60,6 +61,7 @@ public record CombatAction(CombatActionType type, int value, int repeatCount) {
       case POISON -> new CombatAction(type, amount);
       case WEAKEN -> new CombatAction(type, amount);
       case CURSE ->new CombatAction(type, amount);
+      case CHARGE -> new CombatAction(type, amount);
       case IDLE -> new CombatAction(type, amount);
 		};
 	}
