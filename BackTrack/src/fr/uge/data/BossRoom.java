@@ -3,7 +3,6 @@ package fr.uge.data;
 import java.util.Objects;
 
 import fr.uge.model.Enemy;
-import fr.uge.model.Room;
 
 /**
  * Salle contenant le boss de l'étage.
