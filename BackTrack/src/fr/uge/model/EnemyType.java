@@ -109,5 +109,34 @@ public enum EnemyType {
          default -> BOSS_DEMON;
      };
 	 }
-	 
+	  /**
+    * Retourne un ennemi aléatoire selon le niveau de l'étage
+    */
+   public static EnemyType getRandomForFloor(int floorNumber) {
+       var random = new java.util.Random();
+       
+       return switch (floorNumber) {
+           case 1 -> {
+               var weak = new EnemyType[]{RAT, SLIME, BAT};
+               yield weak[random.nextInt(weak.length)];
+           }
+           case 2 -> {
+               var medium = new EnemyType[]{GOBLIN, SKELETON, WOLF, RAT, SLIME};
+               yield medium[random.nextInt(medium.length)];
+           }
+           case 3 -> {
+               var strong = new EnemyType[]{ORC, TROLL, GOBLIN, SKELETON, WOLF};
+               yield strong[random.nextInt(strong.length)];
+           }
+           case 4 -> {
+               var veryStrong = new EnemyType[]{TROLL, DARK_MAGE, VAMPIRE, ORC};
+               yield veryStrong[random.nextInt(veryStrong.length)];
+           }
+           default -> {
+               var all = new EnemyType[]{TROLL, DARK_MAGE, VAMPIRE, ORC};
+               yield all[random.nextInt(all.length)];
+           }
+       };
+   }
+   
 }
