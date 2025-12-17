@@ -1,194 +1,428 @@
 package fr.uge.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
-import fr.uge.data.BackPack;
+import fr.uge.data.CombatAction;
 
 public final class Enemy implements Actor{
-	// statistiques de base
-	private final int healthPoints; //Points de vie actuels
-	private final int maxHealthPoints; // Points de vie maximum
-	private int level; //Niveau du Héros
-	private	int experience; // Points d'expérience actuels
-	private final int maxEnergy ;
 	
-	//Statistiques de combat
-	//Energie disponible (3 par tour en combat), 
-	//On ne peut pas le mettre final ( méthod useEnergy) 
-	private int energy; 
+	private static final Random RANDOM = new Random();
 	
-  //On ne peut pas le mettre final ( méthod useMana) 
-	private int manaPoints; // Point mana disponibles
-	private final int protection; // POint de protection temporaire
+	private final EnemyType type;
+	private int healthPoints; 
+	private final int maxHealthPoints; 
 	
-	//inventaire
-	private final BackPack backPack ;
-	private int keys; //
+	private int armor ; // Protection temporaire 	
+	private	final int baseArmor; // Armure de base
+	private int baseDamage ; // Dégâts de base
 	
-	public Enemy(int healthPoints,int maxHealthPoints, int level, int experience,
-							int maxEnergy, int energy, int manaPoints, int protection, BackPack backPack, int keys) {
-		Objects.requireNonNull(backPack);
-		
-		this.healthPoints = healthPoints;
-		this.maxHealthPoints = maxHealthPoints;
-		this.maxEnergy = maxEnergy;
-		this.level = level;
-		this.experience = experience;
+	private CombatAction nextAction; // Action annoncée pour le prochain tour
+	private final List<StatusEffect> statusEffects;
+	private final List<Item> loot; // Items offerts à l'Héro si Enemy meurt
 	
-		this.energy = energy;
-		this.manaPoints = manaPoints;
-		this.protection = protection;
-		this.backPack = backPack;
-		this.keys = keys;
-	}
-	
-	// Inflige des dégats au joueur
-	
-	public Enemy takeDamage(int damage) { // On changera le paramètre damage par un item pour garder l'encapsulation
-		if(damage < 0) {
-			throw new IllegalArgumentException("dégât doit être valeur positif");
-		}
-		var newProtection = 0;
-		var restDamage = damage;	
-	  // si le Hero a encore de point de protection , il l'utilise
-		if(protection > 0) {
-			if(protection >= damage) {
-				newProtection = protection - damage;
-				return new Enemy(healthPoints,maxHealthPoints,level,experience, maxEnergy, energy,manaPoints,newProtection,backPack,keys);
-			}else {
-				restDamage = damage - protection;
-			}
-		}
-	  // si non le dégât s'implique directement au point de vie (healthPoint) de 
-		var newHealthPoints = Math.max(0, healthPoints - restDamage);
-		return new Enemy(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
-	}
-	
-	// méthode pour soigner le joueur 
-	public Enemy heal(int amount) {
-		if(amount < 0) {
-			throw new IllegalArgumentException("Le soin ne peut pas être négatif");
-		}
-		var newHealthPoints = Math.min(maxHealthPoints, healthPoints + amount);
-		return new Enemy(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys);
-	}
-	
-	// méthode pour incrémenter la protection 
-	public Enemy addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
-		var newProtection = protection + amount;
-		return new Enemy(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
-	}
-	
-	// réinitialisé la protection
-	public Enemy resetProtection() {
-		return new Enemy(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, 0, backPack, keys);
-	}
-	
-	
-	//checker si un item peu utiliser grâce au point de l'energie
-	// si oui , décrementer le point return true
-	// si non , return false
-	public boolean useEnergy(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
-		if(energy >= amount) {
-			energy -= amount;
-			return true;
-		}
-		return false;
-	}
-	
-	//réinitialise le point de l'energy
-	// en valeur max du point de l'energy
-	public Enemy resetEnergy() {
-		return new Enemy(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
-	}
-	
-	public boolean useMana(int cost) {
-		if(manaPoints >= cost) {
-			manaPoints-= cost;
-			return true;
-		}
-		return false;
-	}
-	
-	//incrémenter la valeur de mana
-	public Enemy increaseMana(int amount) {
-		var newManaPoints = manaPoints + amount;
-		return new Enemy(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, newManaPoints, protection, backPack, keys);
-	}
-	
-	//Exemple : niveau 2 = 100 XP, niveau 3 = 200 XP...
-	private int getExperienceForNextLevel() {
-		return level * 100; 
-	}
-	
-	//Monter de niveau
-	private void levelUp() {
-		experience -= getExperienceForNextLevel();
-		level ++;
-		
-		System.out.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
-    System.out.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
-	}
-	// xp point d'expérience qu'on a
-	
-	public void gainExperience(int xp) {
-		if(xp < 0) {
-			throw new IllegalArgumentException(" expérience doit toujours positive");
-		}
-		experience += xp;
-		while(experience >= getExperienceForNextLevel()) {
-			levelUp();
-		}
-	}
-	
-	
-	/// Pour le moment , on le return par true.
-	///on changera après
-	public boolean isDead() {
-		return true;
-	}
-	
-  // Getters
-	
-	@Override
-  public int getHealthPoint() { return healthPoints; }
-	@Override
-  public int getMaxHealthPoint() { return maxHealthPoints; }
-  public int getEnergy() { return energy; }
-  public int getMaxEnergy() { return maxEnergy; }
+	private boolean isCharging; // Pour les attaques chargées
+	private int chargeBonus;
 
-  public int getProtection() { return protection; }
-  public int getKeys() { return keys; }
-  public int getLevel() { return level; }
-  public int getExperience() { return experience; }
-  public BackPack getBackpack() { return backPack; }
+	
   
-	// on va l'utiliser pour déverouiller l'un des salles
-	public boolean useKey() {
-		if(keys > 0) {
-			keys --;
-			return true;
+  /**
+   * Constructeur avec HP personnalisé (pour boss ou variantes)
+   */
+  public Enemy(EnemyType type, int customHealth) {
+  	if (customHealth < 0) {
+  		throw new IllegalArgumentException();
+    }
+  	
+    this.type = Objects.requireNonNull(type);
+    this.maxHealthPoints = type.getMaxHealth();
+
+    this.baseArmor = type.getBaseArmor();
+    this.armor = 0;
+    this.baseDamage = type.getBaseDamage();
+    this.statusEffects = new ArrayList<StatusEffect>();
+    this.loot = new ArrayList<>();
+    this.isCharging = false;
+    this.chargeBonus = 0;
+    
+    if ( customHealth == 0) {
+    	this.healthPoints = maxHealthPoints;
+    }else {
+    	this.healthPoints = customHealth;
+    }
+    
+    // Première action annoncée
+    decideNextAction();
+  	  
+  }
+  
+  public Enemy(EnemyType type) {
+    this(type,0);
+	}
+  // ==================== COMBAT ====================
+  
+  /**
+   * L'ennemi décide de sa prochaine action (IA)
+   */
+  public void decideNextAction() {
+      // Si étourdi, ne fait rien
+    if (isStunned()) {
+      nextAction = CombatAction.action(CombatActionType.IDLE,0);
+      return;
+    }
+    // Si en charge, libère l'attaque chargée
+    if (isCharging) {
+        isCharging = false;
+        nextAction = CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + chargeBonus);
+        chargeBonus = 0;
+        return;
+    }
+    
+ // IA basée sur le type d'ennemi et la situation
+    nextAction = switch (type) {
+        case RAT, BAT -> decideWeakEnemyAction();
+        case SLIME -> decideSlimeAction();
+        case GOBLIN, ORC -> decideAggressiveAction();
+        case SKELETON -> decideSkeletonAction();
+        case WOLF -> decideWolfAction();
+        case TROLL -> decideTrollAction();
+        case DARK_MAGE -> decideMageAction();
+        case VAMPIRE -> decideVampireAction();
+        case BOSS_GOLEM, BOSS_DRAGON, BOSS_DEMON -> decideBossAction();
+    }; 
+    
+  }
+  
+  private CombatAction decideWeakEnemyAction() {
+    // Ennemis faibles : attaque simple la plupart du temps
+    if (RANDOM.nextDouble() < 0.8) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,3);
+  }
+  
+  private CombatAction decideSlimeAction() {
+    var roll = RANDOM.nextDouble();
+    if (roll < 0.6) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.8) {
+        return CombatAction.action(CombatActionType.DEFEND,4);
+    }
+    return CombatAction.action(CombatActionType.HEAL,5);
+  }
+  
+  private CombatAction decideAggressiveAction() {
+    var roll = RANDOM.nextDouble();
+    if (healthPoints < maxHealthPoints * 0.3) {
+        // Faible en vie : devient plus agressif
+        if (roll < 0.7) {
+            return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 5);
+        }
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    }
+    
+    if (roll < 0.5) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.75) {
+        return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 3);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,5);
+  }
+  
+  private CombatAction decideSkeletonAction() {
+    var roll = RANDOM.nextDouble();
+    if (roll < 0.4) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.7) {
+        return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,4);
+  
+  }
+  
+  private CombatAction decideWolfAction() {
+    var roll = RANDOM.nextDouble();
+    if (roll < 0.6) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.85) {
+        return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
+    }
+    // Charge
+    isCharging = true;
+    chargeBonus = 8;
+    return new CombatAction(CombatActionType.CHARGE, baseDamage + chargeBonus);
+  }
+  
+  private CombatAction decideTrollAction() {
+    var roll = RANDOM.nextDouble();
+    if (healthPoints < maxHealthPoints * 0.5 && roll < 0.4) {
+        return CombatAction.action(CombatActionType.HEAL,10);
+    }
+    if (roll < 0.5) {
+        return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 5);
+    } else if (roll < 0.8) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,8);
+  }
+
+  private CombatAction decideMageAction() {
+    var roll = RANDOM.nextDouble();
+    if (roll < 0.35) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.55) {
+        return CombatAction.action(CombatActionType.POISON,4);
+    } else if (roll < 0.75) {
+        return CombatAction.action(CombatActionType.CURSE,0);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,6);
+  }
+  
+  private CombatAction decideVampireAction() {
+    var roll = RANDOM.nextDouble();
+    if (healthPoints < maxHealthPoints * 0.6) {
+        if (roll < 0.6) {
+            return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+        }
+    }
+    if (roll < 0.5) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+    } else if (roll < 0.8) {
+        return CombatAction.action(CombatActionType.ATTACK,baseDamage - 2);
+    }
+    return CombatAction.action(CombatActionType.DEFEND,5);
+  }
+
+	 private CombatAction decideBossAction() {
+     var roll = RANDOM.nextDouble();
+     var phase = (double) healthPoints / maxHealthPoints;
+     
+     // Phase 1 (> 66% HP) : Attaques normales
+     if (phase > 0.66) {
+         if (roll < 0.5) {
+             return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+         } else if (roll < 0.8) {
+             return CombatAction.action(CombatActionType.DEFEND,10);
+         }
+         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 5);
+     }
+     
+     // Phase 2 (33-66% HP) : Plus agressif
+     if (phase > 0.33) {
+         if (roll < 0.4) {
+             return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 8);
+         } else if (roll < 0.7) {
+             return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
+         } else if (roll < 0.85) {
+             return CombatAction.action(CombatActionType.CURSE,0);
+         }
+         return CombatAction.action(CombatActionType.DEFEND,12);
+     }
+     
+     // Phase 3 (< 33% HP) : Mode rage
+     if (roll < 0.5) {
+         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 12);
+     } else if (roll < 0.8) {
+         return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
+     }
+     return CombatAction.action(CombatActionType.ATTACK,baseDamage);
+	 }
+	
+   /**
+    * Exécute l'action annoncée
+    * @return l'action exécutée
+    */
+   public CombatAction executeAction() {
+       var action = nextAction;
+       
+       // Appliquer les effets de l'action sur l'ennemi lui-même
+       switch (action.type()) {
+           case DEFEND -> armor += action.value();
+           case HEAL -> healthPoints = Math.min(maxHealthPoints, healthPoints + action.value());
+           case ENRAGE -> baseDamage += action.value();
+           case FORTIFY -> armor += action.value();
+           default -> {}
+       }
+       
+       // Décider la prochaine action
+       decideNextAction();
+       
+       return action;
+   }
+
+   /**
+    * Inflige des dégâts à l'ennemi
+    * @return les dégâts réellement infligés
+    */
+   public int takeDamage(int damage) {
+       if (damage <= 0) return 0;
+       
+       var actualDamage = damage;
+       
+       // Réduction par l'armure temporaire
+       if (armor > 0) {
+           if (armor >= damage) {
+               armor -= damage;
+               return 0;
+           } else {
+               actualDamage = damage - armor;
+               armor = 0;
+           }
+       }
+       
+       // Réduction par l'armure de base
+       actualDamage = Math.max(1, actualDamage - baseArmor);
+       
+       healthPoints = Math.max(0, healthPoints - actualDamage);
+       return actualDamage;
+   }
+   
+   /**
+    * Ajoute de la protection temporaire
+    */
+   public void addArmor(int amount) {
+       if (amount > 0) {
+           armor += amount;
+       }
+   }
+   
+   /**
+    * Réinitialise la protection temporaire (début de tour)
+    */
+   public void resetArmor() {
+       armor = 0;
+   }
+   
+   public void addStatusEffect(StatusEffect effect) {
+     Objects.requireNonNull(effect);
+     statusEffects.add(effect);
+   }
+ 
+   public void removeStatusEffect(StatusEffect effect) {
+     statusEffects.remove(effect);
+   }
+ 
+	 /**
+	  * Applique les effets de début de tour
+	  * @return le total des dégâts/soins subis
+	  */
+	 public int applyStatusEffects() {
+	     var total = 0;
+	     var expiredEffects = new ArrayList<StatusEffect>();
+	     
+	     for (var effect : statusEffects) {
+	         total += effect.applyStartOfTurn();
+	         if (!effect.tick()) {
+	             expiredEffects.add(effect);
+	         }
+	     }
+	     
+	     statusEffects.removeAll(expiredEffects);
+	     
+	     // Appliquer les dégâts/soins
+	     if (total < 0) {
+	         healthPoints = Math.max(0, healthPoints + total);
+	     } else if (total > 0) {
+	         healthPoints = Math.min(maxHealthPoints, healthPoints + total);
+	     }
+	     
+	     return total;
+	 }
+	 
+	 public boolean isStunned() {
+	   return statusEffects.stream().anyMatch(StatusEffect::preventsAction);
+	 }
+	
+		public List<StatusEffect> getStatusEffects() {
+		   return Collections.unmodifiableList(statusEffects);
 		}
-		return false;
+	
+	/**
+	* @return le modificateur total de dégâts des effets
+	*/
+	public int getDamageModifier() {
+	   return statusEffects.stream()
+	       .mapToInt(StatusEffect::getDamageModifier)
+	       .sum();
 	}
 	
-	//ajout du clef
-	public Enemy addKey() {
-		return new Enemy(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys ++ );
+  // ==================== LOOT ====================
+  
+  public void addLoot(Item item) {
+      Objects.requireNonNull(item);
+      loot.add(item);
+  }
+  
+  public List<Item> getLoot() {
+      return Collections.unmodifiableList(loot);
+  }
+  
+  public List<Item> dropLoot() {
+      var dropped = new ArrayList<>(loot);
+      loot.clear();
+      return dropped;
+  }
+  
+  public EnemyType getType() {
+    return type;
+  }
+
+	@Override
+	public int getHealthPoint() {
+	    return healthPoints;
 	}
 	
 	@Override
-	public String toString() {
-		var str = "\n========== STATISTIQUES DU HÉROS ==========" +
-							"❤️  Vie        : " + healthPoints + "/" + maxHealthPoints +
-							"⚡ Énergie    : " + energy + "/" + maxEnergy + 
-							"💙 Mana       : " + manaPoints + "/" + manaPoints +
-							"🛡️  Protection : " + protection +
-							"⭐ Niveau     : " + level +
-							"✨ Expérience : " + experience + "/" + getExperienceForNextLevel() +
-						
-							"🔑 Clés       : " + keys +
-							"==========================================\n";
-		return str;
+	public int getMaxHealthPoint() {
+	    return maxHealthPoints;
 	}
+	
+	public int getArmor() {
+	    return armor;
+	}
+	
+	public int getBaseArmor() {
+	    return baseArmor;
+	}
+	
+	public int getBaseDamage() {
+	    return baseDamage;
+	}
+	
+	public int getEffectiveDamage() {
+	    return Math.max(0, baseDamage + getDamageModifier());
+	}
+	
+	public CombatAction getNextAction() {
+	    return nextAction;
+	}
+	
+	public int getExperienceReward() {
+	    return type.getExperienceReward();
+	}
+	
+	public boolean isDead() {
+	    return healthPoints <= 0;
+	}
+	
+	public boolean isBoss() {
+	    return type.isBoss();
+	}
+	/**
+   * Crée un ennemi aléatoire pour un étage donné
+   */
+  public static Enemy createForFloor(int floorNumber) {
+      return new Enemy(EnemyType.getRandomForFloor(floorNumber));
+  }
+  
+  /**
+   * Crée un boss pour un étage donné
+   */
+  public static Enemy createBossForFloor(int floorNumber) {
+      return new Enemy(EnemyType.getBossForFloor(floorNumber));
+  }
+  
 }
