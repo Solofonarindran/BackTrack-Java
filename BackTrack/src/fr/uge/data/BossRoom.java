@@ -41,10 +41,25 @@ public record BossRoom(Enemy boss, boolean defeated) implements Room{
 	}
 	/**
    * Crée une salle de boss pour un étage donné
-//   */
-//  public static BossRoom createForFloor(int floorNumber) {
-//      var boss = Enemy.createBossForFloor(floorNumber);
-//      return new BossRoom(boss);
-//  }
-//	
+  */
+	
+  public static BossRoom createForFloor(int floorNumber) {
+      var boss = Enemy.createBossForFloor(floorNumber);
+      return new BossRoom(boss);
+  }
+	
+  /**
+   * Vérifie si le boss est mort et met à jour le status
+   */
+  public BossRoom updateDefeated() {
+  	if(boss.isDead()) {
+  		return new BossRoom(boss, true);
+  	}
+  	return this;
+  }
+  
+  @Override
+  public final String toString() {
+  	return defeated ? "💀" : "👑";	
+  }
 }
