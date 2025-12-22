@@ -1,6 +1,7 @@
 package fr.uge.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +10,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 import fr.uge.model.Armor;
 import fr.uge.model.ArmorType;
+import fr.uge.model.Cell;
 import fr.uge.model.Consumable;
 import fr.uge.model.Coordonate;
 import fr.uge.model.Gold;
@@ -23,32 +24,19 @@ import fr.uge.model.WeaponClass;
 import fr.uge.model.WeaponType;
 
 public class BackPack {
-	
-	private final HashMap<Item, List<Coordonate>> equipments ;
-	
-	// ce map contient les places (coordonnées) qui sont déverouillés (unlocked) et dispo
-	private final HashMap<Coordonate,Map<String,Boolean>> coordonates;
-	
-	private static final String UNLOCKED = "unloked";
-	private static final String DISPO = "dispo";
-	
+
 	private static final int MAX_WIDTH = 7;
 	private static final int MAX_HEIGHT = 5;
+	private final HashMap<Item, List<Coordonate>> equipments ;
+	
+	private Cell [] [] grids;
+	
 	
 	public BackPack() {
 		equipments = new HashMap<Item, List<Coordonate>>();
-		coordonates = new HashMap<Coordonate,Map<String,Boolean>>();
+		grids = new Cell[MAX_HEIGHT][MAX_WIDTH];
 	}
-	
-	// Exemple de structure de données
-	
-	//Coordonate(1,0) => unclocked  :{ true (déverouillé)}
-	//							      { false (vérouillé)}
-	
-	//					 dispo		: { true (sans object) }
-	//								: { false 						 }
-	
-	
+		
   public void initialItems() {
   	 // Épée verticale (3 cases)
     var sword = new Weapon("Épée en bois",WeaponType.SWORDS,WeaponClass.MELLER,1,6,Rarity.COMMON,
@@ -70,25 +58,22 @@ public class BackPack {
     addEquipement(potion, new Coordonate(2, 3));
     addEquipement(gold, new Coordonate(4, 3));
   }
-  
-	// initialisation au milieu du sac
-	public void initializeStartingGrid() {
-		
-		for(var x = 2; x <= 4; x++) {
-			for(var y = 1; y <= 3; y++) {
-				var coord = new Coordonate(x, y);
-				var state = new HashMap<String,Boolean>();
-				state.put(UNLOCKED, true);
-				state.put(DISPO, true);
-				
-				coordonates.put(coord, state);
+  	
+  public void initializeStartingGrid() {
+		var i = 0;
+		for(var y = 0; y < MAX_HEIGHT; y++) {
+			for(var x = 0; x < MAX_WIDTH; x++) {
+			
+				grids[y][x] =  ((x >=2) && (x <=4) && (y >= 1) && (y <=3)) ? new Cell(i, true, new Coordonate(x,y)) : new Cell(i, false,new Coordonate(x,y)); 
+				i ++;
 			}
 		}
+		
 	}
 	
 	public void init() {
-		initialItems();
 		initializeStartingGrid();
+		initialItems();
 	}
 	
 	public int getMaxHeight() {
@@ -110,25 +95,41 @@ public class BackPack {
 	
 	// cette méthode déverouille une case du sac.
 	// déverouille signifie aussi de plus qu'il est dispo = true
+
+	
 	public void unlockedCoordonate(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
-		if(coordonate.x() > MAX_WIDTH || coordonate.y() > MAX_HEIGHT) {
+		var x = coordonate.x();
+		var y = coordonate.y();
+		if( x > MAX_WIDTH ||  y > MAX_HEIGHT) {
 			throw new IllegalArgumentException("Débordement du coordonné");
 		}
-		var state = coordonates.computeIfAbsent(coordonate, _ ->new HashMap<String, Boolean>());
-		state.put(UNLOCKED, true);
-		state.put(DISPO, true);
+		var cell = grids[y][x];
+		cell.setVisible();
+		grids[y][x] = cell;
 	}
 	
 	// mis à jour de la disponibilité de coordonées
 	// value true si dispo
-	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
+//	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
+//		Objects.requireNonNull(coordonate);
+//		coordonates.entrySet().stream()
+//													.filter(e->e.getKey().equals(coordonate))
+//													.findFirst()
+//													.ifPresent(e->e.getValue().put(DISPO, value));
+//
+//	}
+	
+	private void updateCoordonateDispo(Coordonate coordonate, boolean value) {
 		Objects.requireNonNull(coordonate);
-		coordonates.entrySet().stream()
-													.filter(e->e.getKey().equals(coordonate))
-													.findFirst()
-													.ifPresent(e->e.getValue().put(DISPO, value));
-
+		var x = coordonate.x();
+		var y = coordonate.y();
+		if( x > MAX_WIDTH ||  y > MAX_HEIGHT) {
+			throw new IllegalArgumentException("Débordement du coordonné");
+		}
+		var cell = grids[y][x];
+		cell.updateValueFree(value);
+		grids[y][x] = cell;
 	}
 	
 	// savoir si la place de coordonné peut contenir un équipement
@@ -139,15 +140,28 @@ public class BackPack {
    * @param coordonate La coordonnée à vérifier
    * @return true si la case est libre
    */
-	public boolean isAccepted(Coordonate coordonate) {
-		Objects.requireNonNull(coordonate);
-		return coordonates.entrySet().stream()
-		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
-									 .map(e->e.getValue().get(DISPO))
-								   .findFirst()
-									 .orElseGet(()->false);
-	}
+//	public boolean isAccepted(Coordonate coordonate) {
+//		Objects.requireNonNull(coordonate);
+//		return coordonates.entrySet().stream()
+//		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
+//									 .map(e->e.getValue().get(DISPO))
+//								   .findFirst()
+//									 .orElseGet(()->false);
+//	}
 	
+	 public boolean isAccepted(Coordonate coordonate) {
+		 Objects.requireNonNull(coordonate);
+		 var x = coordonate.x();
+		 var y = coordonate.y();
+		 
+		 var cell = grids[y][x];
+		 
+		 if(Objects.isNull(cell)) {
+			 return false;
+		 }
+		 return cell.isVisible() && cell.isFree();
+		
+	 }
 	
 	// ajout d'un équipement dans le sac
 	public boolean addEquipement(Item equipement,Coordonate clickedCoord) {
@@ -158,14 +172,15 @@ public class BackPack {
 		
 		// voir les coordonées réelles disponible dans le sac suivant les réferences et clickedCoord
 		var coordonateAbsolute = Coordonate.toAbsolute(references, clickedCoord);
-		// vérifie si aucune réponse est false
-		var isAccepted = coordonateAbsolute.stream().allMatch(this::isAccepted); 
 
+		// vérifie si aucune réponse est false
+		var isAccepted = coordonateAbsolute.stream().allMatch(c->isAccepted(c)); 
+		
 		if(!isAccepted) {
 			return false;
 		}
 		equipments.put(equipement, coordonateAbsolute);
-		coordonateAbsolute.forEach(c->upgradeCoordonateDispo(c, false)); // mettre les coordonnées indisponible
+		coordonateAbsolute.forEach(c->updateCoordonateDispo(c, false)); // mettre les coordonnées indisponible
 		return true;
 	}
 	
@@ -180,7 +195,7 @@ public class BackPack {
 		var coordAbsolutes = equipments.get(equipment);
 		
 		//Libérer les cases 
-		coordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
+		coordAbsolutes.forEach(c->updateCoordonateDispo(c, true));
 		equipments.remove(equipment);
 		return true;
 	}
@@ -204,7 +219,7 @@ public class BackPack {
 		
 		if(accepted) {
 		//les anciens coordonées sont disponibles
-			oldCoordAbsolutes.forEach(c->upgradeCoordonateDispo(c, true));
+			oldCoordAbsolutes.forEach(c->updateCoordonateDispo(c, true));
 		}
 		return accepted;
 	}
@@ -235,11 +250,17 @@ public class BackPack {
   /**
    * Vérifie si une case est déverrouillée (existe dans le sac)
    */
-  public boolean isUnlocked(Coordonate coordonate) {
-      Objects.requireNonNull(coordonate);
-      return coordonates.containsKey(coordonate) && 
-             coordonates.get(coordonate).get(UNLOCKED);
-  }
+//  public boolean isUnlocked(Coordonate coordonate) {
+//      Objects.requireNonNull(coordonate);
+//      return coordonates.get(coordonate).get(UNLOCKED);   
+//  }
+	
+	public boolean isUnlocked(Coordonate coordonate) {
+		Objects.requireNonNull(coordonate);
+		var x = coordonate.x();
+		var y = coordonate.y();
+		return grids[y][x].isVisible();
+	}
 	
   //Item by coordinate
   //Même si une partie d'item est concernée. 
@@ -292,16 +313,16 @@ public class BackPack {
     destroyedItems.forEach(this::removeEquipment);
     
     equipments.put(malediction, absoluteCoords);
-    absoluteCoords.forEach(c->upgradeCoordonateDispo(c, false));
+    absoluteCoords.forEach(c->updateCoordonateDispo(c, false));
 		return destroyedItems;
 	}
 	
 	public Set<Coordonate> getUnlockedCoordinates() {
-		return coordonates.entrySet().stream()
-																 .filter(e->e.getValue().get(UNLOCKED))
-																 //.map(e->e.getKey())
-																 .map(Map.Entry::getKey)
-																 .collect(Collectors.toSet());
+		return Arrays.stream(grids)
+								 .flatMap(g->Arrays.stream(g))
+								 .filter(Cell::isVisible)
+								 .map(Cell::coordonate)
+								 .collect(Collectors.toSet());
 	}
 	
 	// =============== GETTERS POUR VIEW PROF ====================
@@ -312,12 +333,14 @@ public class BackPack {
 	}
 	
 	
-	// total des déverouillés
+// total des cases dispo
+	
 	public int getTotalSlots() {
-		return coordonates.values().stream()
-															  .filter(state ->state.get(UNLOCKED))
-															  .mapToInt(_ -> 1)
-															  .sum();
+		return Arrays.stream(grids)
+								 .flatMap(a->Arrays.stream(a))
+								 .filter(c->c.isVisible())
+								 .mapToInt(_->1)
+								 .sum();
 	}
 	
 	
@@ -330,5 +353,9 @@ public class BackPack {
 	
 	public int getItemCount() {
 		return equipments.size();
+	}
+	
+	public Cell[][] grids() {
+		return grids;
 	}
 }
