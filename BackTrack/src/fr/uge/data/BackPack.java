@@ -284,6 +284,10 @@ public class BackPack {
   															.map(Map.Entry::getKey)
   															.toList();
   }
+  
+  public Map<Item, List<Coordonate>> itemsWithCoordonate() {
+  	return Map.copyOf(equipments) ;
+  }
   //retourne la liste des items débarassés
 	public List<Item> forceMalediction(Malediction malediction,Coordonate clickedCoordinate) {
 		Objects.requireNonNull(malediction);
