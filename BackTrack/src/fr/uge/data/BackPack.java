@@ -15,6 +15,7 @@ import fr.uge.model.ArmorType;
 import fr.uge.model.Cell;
 import fr.uge.model.Consumable;
 import fr.uge.model.Coordonate;
+import fr.uge.model.Curse;
 import fr.uge.model.Gold;
 import fr.uge.model.Item;
 import fr.uge.model.Malediction;
@@ -83,19 +84,93 @@ public class BackPack {
 	public int getMaxWidth() {
 		return MAX_WIDTH;
 	}
-
-//	public void unlockedCoordonate(Coordonate coordonate) {
-//		Objects.requireNonNull(coordonate);
-//		coordonates.entrySet().stream()
-//													.filter(e->e.getKey().equals(coordonate))
-//													.findFirst()
-//													.ifPresent(e->e.getValue().put(UNLOCKED, true));
-//	}
 	
 	
 	// cette méthode déverouille une case du sac.
 	// déverouille signifie aussi de plus qu'il est dispo = true
 
+//==================== EXTENSION DU SAC ====================
+
+	/**
+	* Déverrouille N nouvelles cases adjacentes aux cases existantes
+	* @param count Nombre de cases à déverrouiller
+	* @return Nombre de cases effectivement déverrouillées
+	*/
+	public int unlockNewSlots(int count) {
+	   int unlocked = 0;
+	   
+	   for (int i = 0; i < count; i++) {
+	       var nextSlot = findNextSlotToUnlock();
+	       if (nextSlot != null) {
+	           unlockedCoordonate(nextSlot);
+	           unlocked++;
+	       }
+	   }
+	   
+	   return unlocked;
+	}
+
+	/**
+	* Trouve la prochaine case à déverrouiller (adjacente à une case déjà déverrouillée)
+	*/
+	private Coordonate findNextSlotToUnlock() {
+	   // Parcourir toutes les cases
+	   for (int y = 0; y < MAX_HEIGHT; y++) {
+	       for (int x = 0; x < MAX_WIDTH; x++) {
+	           var coord = new Coordonate(x, y);
+	           
+	           // Si la case est déjà déverrouillée, passer
+	           if (isUnlocked(coord)) {
+	               continue;
+	           }
+	           
+	           // Vérifier si elle est adjacente à une case déverrouillée
+	           if (isAdjacentToUnlocked(coord)) {
+	               return coord;
+	           }
+	       }
+	   }
+	   
+	   return null;  // Aucune case disponible
+	}
+
+	/**
+	* Vérifie si une coordonnée est adjacente à une case déverrouillée
+	*/
+	private boolean isAdjacentToUnlocked(Coordonate coord) {
+	   int x = coord.x();
+	   int y = coord.y();
+	   
+	   // Vérifier les 4 directions
+	   if (x > 0 && isUnlocked(new Coordonate(x - 1, y))) return true;
+	   if (x < MAX_WIDTH - 1 && isUnlocked(new Coordonate(x + 1, y))) return true;
+	   if (y > 0 && isUnlocked(new Coordonate(x, y - 1))) return true;
+	   if (y < MAX_HEIGHT - 1 && isUnlocked(new Coordonate(x, y + 1))) return true;
+	   
+	   return false;
+	}
+
+	/**
+	* @return Nombre total de cases déverrouillées
+	*/
+	public int getUnlockedSlotCount() {
+	   int count = 0;
+	   for (int y = 0; y < MAX_HEIGHT; y++) {
+	       for (int x = 0; x < MAX_WIDTH; x++) {
+	           if (isUnlocked(new Coordonate(x, y))) {
+	               count++;
+	           }
+	       }
+	   }
+	   return count;
+	}
+	
+	/**
+	* @return Nombre de cases encore verrouillées
+	*/
+		public int getLockedSlotCount() {
+		   return (MAX_WIDTH * MAX_HEIGHT) - getUnlockedSlotCount();
+		}
 	
 	public void unlockedCoordonate(Coordonate coordonate) {
 		Objects.requireNonNull(coordonate);
@@ -109,17 +184,6 @@ public class BackPack {
 		grids[y][x] = cell;
 	}
 	
-	// mis à jour de la disponibilité de coordonées
-	// value true si dispo
-//	private void upgradeCoordonateDispo(Coordonate coordonate, boolean value) {
-//		Objects.requireNonNull(coordonate);
-//		coordonates.entrySet().stream()
-//													.filter(e->e.getKey().equals(coordonate))
-//													.findFirst()
-//													.ifPresent(e->e.getValue().put(DISPO, value));
-//
-//	}
-	
 	private void updateCoordonateDispo(Coordonate coordonate, boolean value) {
 		Objects.requireNonNull(coordonate);
 		var x = coordonate.x();
@@ -132,22 +196,6 @@ public class BackPack {
 		grids[y][x] = cell;
 	}
 	
-	// savoir si la place de coordonné peut contenir un équipement
-	// check d'une seule coordonnée
-	// l'ensemble des coordonées d'un item est checké dans le méthode addEquipement (var isAccepted)
-	/**
-   * Vérifie si une case peut accueillir un item (déverrouillée ET disponible)
-   * @param coordonate La coordonnée à vérifier
-   * @return true si la case est libre
-   */
-//	public boolean isAccepted(Coordonate coordonate) {
-//		Objects.requireNonNull(coordonate);
-//		return coordonates.entrySet().stream()
-//		 .filter(e->e.getKey().equals(coordonate) && e.getValue().get(UNLOCKED))
-//									 .map(e->e.getValue().get(DISPO))
-//								   .findFirst()
-//									 .orElseGet(()->false);
-//	}
 	
 	 public boolean isAccepted(Coordonate coordonate) {
 		 Objects.requireNonNull(coordonate);
@@ -163,6 +211,12 @@ public class BackPack {
 		
 	 }
 	
+	 private boolean isCurse(Item item) {
+		 return switch(item) {
+			 case Curse _ -> true;
+			 default -> false;
+		 };
+	 }
 	// ajout d'un équipement dans le sac
 	public boolean addEquipement(Item equipement,Coordonate clickedCoord) {
 		// clickedCoord ( données ou coordonnées récuperées venant d'interface zen)
@@ -176,7 +230,7 @@ public class BackPack {
 		// vérifie si aucune réponse est false
 		var isAccepted = coordonateAbsolute.stream().allMatch(c->isAccepted(c)); 
 		
-		if(!isAccepted) {
+		if(!isAccepted && !isCurse(equipement)) {
 			return false;
 		}
 		equipments.put(equipement, coordonateAbsolute);
@@ -329,6 +383,49 @@ public class BackPack {
 								 .collect(Collectors.toSet());
 	}
 	
+//==================== MALÉDICTION ====================
+
+//Vérifier si on peut placer une malédiction à cette position
+public boolean canPlaceCurse(Curse curse, Coordonate position) {
+   for (var ref : curse.references()) {
+       int x = position.x() + ref.x();
+       int y = position.y() + ref.y();
+       
+       // Vérifier les limites du sac
+       if (x < 0 || x >= MAX_WIDTH || y < 0 || y >= MAX_HEIGHT) {
+           return false;
+       }
+   }
+   return true;
+}
+
+//Supprimer tous les items aux positions données
+public void removeItemsAt(List<Coordonate> references, Coordonate basePosition) {
+   var itemsToRemove = new java.util.HashSet<Item>();
+   
+   for (var ref : references) {
+       int x = basePosition.x() + ref.x();
+       int y = basePosition.y() + ref.y();
+       
+       // Trouver l'item à cette position
+       var item = getItemAt(new Coordonate(x, y));
+       if (item != null) {
+           itemsToRemove.add(item);
+       }
+   }
+   
+   // Supprimer tous les items trouvés
+   for (var item : itemsToRemove) {
+       removeEquipment(item);
+   }
+}
+
+//Placer une malédiction (force la position, écrase les items)
+public void placeCurse(Curse curse, Coordonate position) {
+   addEquipement(curse, position);
+}
+
+
 	// =============== GETTERS POUR VIEW PROF ====================
 	
 	//Map des items avec ses coordonnées

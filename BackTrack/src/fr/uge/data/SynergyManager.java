@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.uge.model.Armor;
-import fr.uge.model.ArmorType;
 import fr.uge.model.Consumable;
 import fr.uge.model.Hero;
 import fr.uge.model.Item;
@@ -41,16 +40,16 @@ public class SynergyManager {
      // Note : On va créer un type spécial "HeartGem" qui sera un Magic
      // Pour l'instant, simplifions : toute arme à côté d'un objet magique
      
-     synergies.add(new Synergy(
-         "Arme Enchantée",
-         "Une arme adjacente à un objet magique gagne +1 PV par utilisation",
-         Weapon.class,
-         Magic.class,
-         (item1, item2, player) -> {
-             // Cet effet sera appliqué pendant le combat (Phase 3)
-             // Pour l'instant, on le note juste
-         }
-     ));
+//     synergies.add(new Synergy(
+//         "Arme Enchantée",
+//         "Une arme adjacente à un objet magique gagne +1 PV par utilisation",
+//         Weapon.class,
+//         Magic.class,
+//         (item1, item2, player) -> {
+//             // Cet effet sera appliqué pendant le combat (Phase 3)
+//             // Pour l'instant, on le note juste
+//         }
+//     ));
      
      // ========== SYNERGIE 2 : Bouclier + Armure ==========
      synergies.add(new Synergy(
@@ -60,48 +59,46 @@ public class SynergyManager {
          Armor.class, // Armure
          (item1, item2, player) -> {
              // Vérifier que l'un est un bouclier et l'autre une armure
-             if (item1 instanceof Armor a1 && item2 instanceof Armor a2) {
-                 if ((a1.type() == ArmorType.SHIELD && a2.type() == ArmorType.CLOTHING) ||
-                     (a2.type() == ArmorType.SHIELD && a1.type() == ArmorType.CLOTHING)) {
-                     player.addProtection(5);
-                 }
+             if ((Armor.isShield(item1) && Armor.isClothing(item2)) ||
+                 (Armor.isShield(item2) && Armor.isClothing(item1))) {
+                 player.addProtection(5);
              }
          }
      ));
      
      // ========== SYNERGIE 3 : Épée + Pierre à aiguiser ==========
      // (On pourrait créer un type Consumable spécial "Whetstone")
-     synergies.add(new Synergy(
-         "Lame Affûtée",
-         "Une épée adjacente à une pierre à aiguiser gagne +10% dégâts",
-         Weapon.class,
-         Consumable.class,
-         (item1, item2, player) -> {
-             // Effet appliqué en combat (Phase 3)
-         }
-     ));
+//     synergies.add(new Synergy(
+//         "Lame Affûtée",
+//         "Une épée adjacente à une pierre à aiguiser gagne +10% dégâts",
+//         Weapon.class,
+//         Consumable.class,
+//         (item1, item2, player) -> {
+//             // Effet appliqué en combat (Phase 3)
+//         }
+//     ));
      
      // ========== SYNERGIE 4 : Potion + Potion ==========
-     synergies.add(new Synergy(
-         "Double Dose",
-         "Deux potions adjacentes voient leur effet décuplé",
-         Consumable.class,
-         Consumable.class,
-         (item1, item2, player) -> {
-             // Effet spécial lors de l'utilisation (Phase 3)
-         }
-     ));
-     
+//     synergies.add(new Synergy(
+//         "Double Dose",
+//         "Deux potions adjacentes voient leur effet décuplé",
+//         Consumable.class,
+//         Consumable.class,
+//         (item1, item2, player) -> {
+//             // Effet spécial lors de l'utilisation (Phase 3)
+//         }
+//     ));
+//     
      // ========== SYNERGIE 5 : Pierre de Mana + Baguette ==========
-     synergies.add(new Synergy(
-         "Mana Amplifié",
-         "Une baguette magique adjacente à une pierre de mana coûte -1 mana",
-         Magic.class, // Baguette
-         Magic.class, // Pierre de mana
-         (item1, item2, player) -> {
-             // Réduction de coût en combat (Phase 3)
-         }
-     ));
+//     synergies.add(new Synergy(
+//         "Mana Amplifié",
+//         "Une baguette magique adjacente à une pierre de mana coûte -1 mana",
+//         Magic.class, // Baguette
+//         Magic.class, // Pierre de mana
+//         (item1, item2, player) -> {
+//             // Réduction de coût en combat (Phase 3)
+//         }
+//     ));
  }
  
  /**

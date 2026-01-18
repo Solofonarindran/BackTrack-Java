@@ -5,13 +5,11 @@ import java.util.Objects;
 // Salle 
 public final class GateRoom implements Room{
 	private boolean unlocked;
-	private boolean accessible;
 	private final Room hiddenRoom;
 	
 	public GateRoom() {
 		this.unlocked = false;
-		this.accessible = false;
-		this.hiddenRoom = TreasureRoom.create();
+		this.hiddenRoom = TreasureRoom.create(1);
 	}
 	public GateRoom(Room hiddenRoom) {
 		Objects.requireNonNull(hiddenRoom);
@@ -23,7 +21,7 @@ public final class GateRoom implements Room{
 		return unlocked;
 	}
 	private void setAccessible(boolean value) {
-		this.accessible = value;
+		this.unlocked = value;
 	}
 	public Room getHiddenRoom() {
 		return hiddenRoom;
@@ -37,7 +35,6 @@ public final class GateRoom implements Room{
       if (unlocked) {
           return false; // Déjà déverrouillée
       }
-      unlocked = true;
       setAccessible(true);
       return true;
   }
@@ -72,6 +69,6 @@ public final class GateRoom implements Room{
   
   @Override
   public String toString() {
-      return unlocked ? hiddenRoom + "" : "🔒";
+      return unlocked ? "🔓" : "🔒";
   }
 }

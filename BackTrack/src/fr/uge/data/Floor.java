@@ -64,53 +64,72 @@ public class Floor {
         ensureConnectivity();
     }
     
+    public void markRoomLooted(Coordonate position) {
+      var room = grid[position.y()][position.x()];
+      
+      if (room instanceof TreasureRoom treasure) {
+          grid[position.y()][position.x()] = treasure.markLooted();
+      }
+    }
+    
+    private Coordonate generateMainpathRight(Coordonate currentPos, Random random) {
+    	while (currentPos.x() < WIDTH - 1) {
+        var possibleMoves = new ArrayList<Direction>();
+        possibleMoves.add(Direction.EAST); // Toujours possible d'aller à droite
+        
+        if (currentPos.y() > 0) {possibleMoves.add(Direction.NORTH);}
+        if (currentPos.y() < HEIGHT - 1) {possibleMoves.add(Direction.SOUTH);}
+        
+        // Favoriser l'avancement vers la droite
+        if (random.nextDouble() < 0.6) {
+            possibleMoves.clear();
+            possibleMoves.add(Direction.EAST);
+        }
+        var direction = possibleMoves.get(random.nextInt(possibleMoves.size()));
+        var newPos = currentPos.move(direction);
+        
+        if (newPos.isInBounds(WIDTH, HEIGHT) && grid[newPos.y()][newPos.x()] == null) {
+            grid[newPos.y()][newPos.x()] = new EmptyRoom();
+            initializeConnections(newPos);
+            addConnection(currentPos, newPos);
+            currentPos = newPos;
+        } else if (direction == Direction.EAST) {
+            // Si on ne peut pas aller à l'est, forcer
+            newPos = currentPos.move(Direction.EAST);
+            if (newPos.isInBounds(WIDTH, HEIGHT)) {
+                if (grid[newPos.y()][newPos.x()] == null) {
+                    grid[newPos.y()][newPos.x()] = new EmptyRoom();
+                    initializeConnections(newPos);
+                }
+                addConnection(currentPos, newPos);
+                currentPos = newPos;
+            }
+        }
+    	}
+    	return currentPos;
+    }
+    
     private void generateMainPath(Random random) {
         // Point de départ au milieu à gauche
         startPosition = new Coordonate(0, HEIGHT / 2);
         playerPosition = startPosition;
-        
-        var currentPos = startPosition;
+        Coordonate currentPos = startPosition;
         grid[currentPos.y()][currentPos.x()] = new EmptyRoom();
-        initializeConnections(currentPos);
-        
+        initializeConnections(currentPos);  
         // Générer un chemin vers la droite
-        while (currentPos.x() < WIDTH - 1) {
-            var possibleMoves = new ArrayList<Direction>();
-            possibleMoves.add(Direction.EAST); // Toujours possible d'aller à droite
-            
-            if (currentPos.y() > 0) possibleMoves.add(Direction.NORTH);
-            if (currentPos.y() < HEIGHT - 1) possibleMoves.add(Direction.SOUTH);
-            
-            // Favoriser l'avancement vers la droite
-            if (random.nextDouble() < 0.6) {
-                possibleMoves.clear();
-                possibleMoves.add(Direction.EAST);
-            }
-            
-            var direction = possibleMoves.get(random.nextInt(possibleMoves.size()));
-            var newPos = currentPos.move(direction);
-            
-            if (newPos.isInBounds(WIDTH, HEIGHT) && grid[newPos.y()][newPos.x()] == null) {
-                grid[newPos.y()][newPos.x()] = new EmptyRoom();
-                initializeConnections(newPos);
-                addConnection(currentPos, newPos);
-                currentPos = newPos;
-            } else if (direction == Direction.EAST) {
-                // Si on ne peut pas aller à l'est, forcer
-                newPos = currentPos.move(Direction.EAST);
-                if (newPos.isInBounds(WIDTH, HEIGHT)) {
-                    if (grid[newPos.y()][newPos.x()] == null) {
-                        grid[newPos.y()][newPos.x()] = new EmptyRoom();
-                        initializeConnections(newPos);
-                    }
-                    addConnection(currentPos, newPos);
-                    currentPos = newPos;
-                }
-            }
+        currentPos = generateMainpathRight(currentPos, random); 		
+        // Placer le BOSS à la position finale
+        grid[currentPos.y()][currentPos.x()] = BossRoom.create(floorNumber);
+        // Créer une salle de sortie APRÈS le boss (si possible)
+        var exitPos = new Coordonate(currentPos.x(), currentPos.y() + 1);
+        if (!exitPos.isInBounds(WIDTH, HEIGHT)) {
+            exitPos = new Coordonate(currentPos.x(), currentPos.y() - 1);
         }
-        
-        // Placer la sortie à la fin du chemin principal
-        grid[currentPos.y()][currentPos.x()] = new ExitRoom(floorNumber + 1);
+        if (exitPos.isInBounds(WIDTH, HEIGHT)) {
+            grid[exitPos.y()][exitPos.x()] = new ExitRoom(floorNumber + 1);
+            initializeConnections(exitPos);
+            addConnection(currentPos, exitPos);  // Connecter boss → sortie
+        }
     }
     
     private void generateBranches(Random random) {
@@ -146,55 +165,148 @@ public class Floor {
         }
     }
     
+    public void markBossDefeated(Coordonate position) {
+      var room = grid[position.y()][position.x()];
+      
+      if (room instanceof BossRoom bossRoom) {
+          grid[position.y()][position.x()] = bossRoom.markDefeated();
+      }
+    }
+    
+    public void markEnemyRoomCleared(Coordonate position) {
+      var room = grid[position.y()][position.x()];
+      
+      if (room instanceof EnemyRoom enemyRoom) {
+          grid[position.y()][position.x()] = enemyRoom.markCleared();
+      }
+    }
+    /**
+     * Crée une salle d'ennemis avec des ennemis adaptés à l'étage
+     */
+    private EnemyRoom createEnemyRoom() {
+      var random = new Random();
+      var enemies = new ArrayList<Enemy>();
+      
+      // 1 à 3 ennemis par salle
+      int minEnemies = 1;
+      int maxEnemies = Math.min(3, 1 + floorNumber);  // Plus d'ennemis aux étages supérieurs
+      int enemyCount = minEnemies + random.nextInt(maxEnemies - minEnemies + 1);
+      
+      for (int i = 0; i < enemyCount; i++) {
+          enemies.add(Enemy.createForFloor(floorNumber));
+      }
+      
+      return new EnemyRoom(enemies, false);
+   }
+    
+    private int placeEnemyRoom(int enemyCount, int index, List<Coordonate> availableRooms) {
+    	 for (var i = 0; i < enemyCount && index < availableRooms.size(); i++) {
+         var pos = availableRooms.get(index++);
+         grid[pos.y()][pos.x()] = createEnemyRoom();
+    	 }
+    	 return index;
+    }
+    
+    private int placeEmptyRoom(int emptyCount, int index, List<Coordonate> availableRooms) {
+    	for(var i = 0; i < emptyCount && index < availableRooms.size(); i++) {
+      	var pos = availableRooms.get(index++);
+      	grid[pos.y()] [pos.x()] = new EmptyRoom();
+      }
+    	return index;
+    }
+    
+    private int placeTreasureRoom(int treasureCount, int index, List<Coordonate> availableRooms) {
+    	for (var i = 0; i < treasureCount && index < availableRooms.size(); i++) {
+        var pos = availableRooms.get(index++);
+        grid[pos.y()][pos.x()] = TreasureRoom.create(floorNumber);
+    	}
+    	return index;
+    }
+    
+    private int placeMerchantRoom(int index, List<Coordonate> availableRooms) {
+    	if (index < availableRooms.size()) {
+        var pos = availableRooms.get(index++);
+        grid[pos.y()][pos.x()] = MerchantRoom.create(floorNumber);
+    	}
+    	return index;
+    }
+    
+    private int placeHealerRoom(int index, List<Coordonate> availableRooms) {
+	  	 if (index < availableRooms.size()) {
+	       var pos = availableRooms.get(index++);
+	       grid[pos.y()][pos.x()] = new HealerRoom();
+	     }
+  	 return index;
+    }
+    
+    private int placeSurpriseRoom(int surpriseCount, int index, List<Coordonate> availableRooms) {
+    	for (var i = 0; i < surpriseCount && index < availableRooms.size(); i++) {
+        var pos = availableRooms.get(index++);
+        grid[pos.y()][pos.x()] = new SurpriseRoom();
+    	}
+    	return index;
+    }
+    
+    private void placeGateRoom(int index, Random random, List<Coordonate> availableRooms) {
+    	if (index < availableRooms.size() && random.nextDouble() < 0.5) {
+        var pos = availableRooms.get(index++);
+        grid[pos.y()][pos.x()] = new GateRoom(TreasureRoom.create(floorNumber));
+    	}
+    }
+    
+    private void createRooms(Random random, List<Coordonate> availableRooms) {
+    	int index = 0;
+      // Placer des salles d'ennemis (15-20% des salles)
+      var enemyCount = random.nextInt(1,Math.max(1, availableRooms.size() * 2 / 10));
+      index = placeEnemyRoom(enemyCount,index,availableRooms);
+      // Placer des salles vides ( 10 - 20 %)
+      var emptyCount = random.nextInt(1, Math.max(1, availableRooms.size() * 2/10));
+      index = placeEmptyRoom(emptyCount, index, availableRooms);
+      // Placer des trésors (15-20% des salles
+      var treasureCount = random.nextInt(1,Math.max(1, availableRooms.size() * 20 / 100));
+      index = placeTreasureRoom(treasureCount, index, availableRooms);
+      // Placer un marchand
+      index = placeMerchantRoom(index, availableRooms);     
+      // Placer un guérisseur
+      index = placeHealerRoom(index, availableRooms);
+      
+      // Placer des surprises (20% des salles restantes)
+      var surpriseCount = Math.max(0, (availableRooms.size() - index) * 20 / 100);
+      index = placeSurpriseRoom(surpriseCount, index, availableRooms);
+      // Placer une grille avec trésor rare (optionnel)
+      placeGateRoom(index, random, availableRooms); 
+    }
+    
+    
     private void placeSpecialRooms(Random random) {
         var emptyRooms = getAllRoomPositions().stream()
-            .filter(p -> grid[p.y()][p.x()] instanceof EmptyRoom)
+            .filter(p ->  EmptyRoom.isEmptyRoom(grid[p.y()][p.x()]))
             .filter(p -> !p.equals(startPosition))
             .toList();
-        
         var availableRooms = new ArrayList<>(emptyRooms);
         Collections.shuffle(availableRooms, random);
-        
-        int index = 0;
-        
-        // Placer des salles d'ennemis (30-40% des salles)
-        int enemyCount = Math.max(1, availableRooms.size() * 35 / 100);
-        for (int i = 0; i < enemyCount && index < availableRooms.size(); i++) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = new EnemyRoom(new ArrayList<Enemy>(),false);
+        createRooms(random, getAllRoomPositions());
+    }
+    
+    private void connectRoomNonVisited(List<Coordonate> allRooms, Set<Coordonate> visited) {
+    	for (var pos : allRooms) {
+        if (!visited.contains(pos)) {
+            // Trouver la salle visitée la plus proche
+            Coordonate nearest = null;
+            var minDist = Integer.MAX_VALUE;
+            for (var visitedPos : visited) {
+                var dist = pos.manhattanDistance(visitedPos);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = visitedPos;
+                }
+            }
+            if (nearest != null && pos.isAdjacentTo(nearest)) {
+                addConnection(pos, nearest);
+                visited.add(pos);
+            }
         }
-        
-        // Placer des trésors (15-20% des salles)
-        int treasureCount = Math.max(1, availableRooms.size() * 17 / 100);
-        for (int i = 0; i < treasureCount && index < availableRooms.size(); i++) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = TreasureRoom.create();
-        }
-        
-        // Placer un marchand
-        if (index < availableRooms.size()) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = new MerchantRoom();
-        }
-        
-        // Placer un guérisseur
-        if (index < availableRooms.size()) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = new HealerRoom();
-        }
-        
-        // Placer des surprises (10% des salles restantes)
-        int surpriseCount = Math.max(0, (availableRooms.size() - index) * 10 / 100);
-        for (int i = 0; i < surpriseCount && index < availableRooms.size(); i++) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = new SurpriseRoom();
-        }
-        
-        // Placer une grille avec trésor rare (optionnel)
-        if (index < availableRooms.size() && random.nextDouble() < 0.5) {
-            var pos = availableRooms.get(index++);
-            grid[pos.y()][pos.x()] = new GateRoom(TreasureRoom.create());
-        }
+    	}
     }
     
     private void ensureConnectivity() {
@@ -216,28 +328,9 @@ public class Floor {
                 }
             }
         }
-        
         // Connecter les salles non visitées
-        for (var pos : allRooms) {
-            if (!visited.contains(pos)) {
-                // Trouver la salle visitée la plus proche
-                Coordonate nearest = null;
-                int minDist = Integer.MAX_VALUE;
-                
-                for (var visitedPos : visited) {
-                    int dist = pos.manhattanDistance(visitedPos);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        nearest = visitedPos;
-                    }
-                }
-                
-                if (nearest != null && pos.isAdjacentTo(nearest)) {
-                    addConnection(pos, nearest);
-                    visited.add(pos);
-                }
-            }
-        }
+        connectRoomNonVisited(allRooms, visited);
+        
     }
     
     private void initializeConnections(Coordonate pos) {
@@ -333,7 +426,8 @@ public class Floor {
         EXIT_FOUND,        // Sortie d'étage trouvée
         GATE_LOCKED,       // Grille fermée (besoin d'une clé)
         BLOCKED,           // Déplacement impossible
-        INVALID            // Position non connectée ou hors limites
+        INVALID,            // Position non connectée ou hors limites
+        BOSS_FOUND  // <- Ajouter
     }
     
     /**
@@ -375,6 +469,7 @@ public class Floor {
           case HealerRoom _ -> MoveResult.HEALER_FOUND;
           case SurpriseRoom s -> s.isRevealed() ? MoveResult.SUCCESS : MoveResult.SURPRISE_FOUND;
           case ExitRoom _ -> MoveResult.EXIT_FOUND;
+          case BossRoom b -> b.isDefeated() ? MoveResult.SUCCESS : MoveResult.BOSS_FOUND; 
           case GateRoom _ -> MoveResult.SUCCESS; // Déjà vérifié qu'elle est ouverte
           default -> MoveResult.SUCCESS;
       };
@@ -389,7 +484,44 @@ public class Floor {
     	 return result != MoveResult.INVALID && result != MoveResult.BLOCKED && result != MoveResult.GATE_LOCKED;
     }
     
-    
+    private String patternMatchingPeekRoom(Room room, StringBuilder sb) {
+    	return switch (room) {
+    	  case BossRoom b -> {  // ← AJOUTER
+            if (b.isDefeated()) {
+                yield sb.append("Boss vaincu").toString();
+            }
+            yield sb.append("👑 BOSS: ").append(b.boss().getType().getName()).toString();
+        }
+        case EnemyRoom e -> {
+            if (e.isCleared()) {
+                yield sb.append("Salle sécurisée (ennemis vaincus)").toString();
+            }
+            yield sb.append("⚠️ DANGER: ").append(e.enemies().size()).append(" ennemi(s)").toString();
+        }
+        case TreasureRoom t -> {
+            if (t.isLooted()) {
+                yield sb.append("Coffre vide").toString();
+            }
+            yield sb.append("✨ Trésor !").toString();
+        }
+        case MerchantRoom _ -> sb.append("Marchand").toString();
+        case HealerRoom h -> sb.append("Guérisseur (").append(h.healCost()).append(" or)").toString();
+        case SurpriseRoom s -> {
+            if (s.isRevealed()) {
+                yield sb.append(s.getEvent().getDescription()).toString();
+            }
+            yield sb.append("??? Surprise ???").toString();
+        }
+        case ExitRoom _ -> sb.append("🚪 SORTIE (irréversible!)").toString();
+        case GateRoom g -> {
+            if (g.isUnlocked()) {
+                yield sb.append("Grille ouverte → ").append(g.getHiddenRoom()).toString();
+            }
+            yield sb.append("🔒 Grille fermée (clé requise)").toString();
+        }
+        default -> sb.append("Couloir").toString();
+    };
+    }
     /**
      * Prévisualise ce qui attend le joueur dans une direction
      * @return description de la salle sans y entrer
@@ -397,50 +529,17 @@ public class Floor {
     public String peekRoom(Direction direction) {
         Objects.requireNonNull(direction);
         var targetPos = playerPosition.move(direction);
-        
         if (!areConnected(playerPosition, targetPos)) {
             return "Pas de passage dans cette direction.";
         }
-        
         var room = getRoom(targetPos);
         if (room == null) {
             return "Mur solide.";
         }
-        
         // Afficher un aperçu selon le type
         var sb = new StringBuilder();
         sb.append(direction).append(" → ").append(room).append(" ");
-        
-        return switch (room) {
-            case EnemyRoom e -> {
-                if (e.isCleared()) {
-                    yield sb.append("Salle sécurisée (ennemis vaincus)").toString();
-                }
-                yield sb.append("⚠️ DANGER: ").append(e.enemies().size()).append(" ennemi(s)").toString();
-            }
-            case TreasureRoom t -> {
-                if (t.isLooted()) {
-                    yield sb.append("Coffre vide").toString();
-                }
-                yield sb.append("✨ Trésor !").toString();
-            }
-            case MerchantRoom _ -> sb.append("Marchand").toString();
-            case HealerRoom h -> sb.append("Guérisseur (").append(h.healCost()).append(" or)").toString();
-            case SurpriseRoom s -> {
-                if (s.isRevealed()) {
-                    yield sb.append(s.getEvent().getDescription()).toString();
-                }
-                yield sb.append("??? Surprise ???").toString();
-            }
-            case ExitRoom _ -> sb.append("🚪 SORTIE (irréversible!)").toString();
-            case GateRoom g -> {
-                if (g.isUnlocked()) {
-                    yield sb.append("Grille ouverte → ").append(g.getHiddenRoom()).toString();
-                }
-                yield sb.append("🔒 Grille fermée (clé requise)").toString();
-            }
-            default -> sb.append("Couloir").toString();
-        };
+        return patternMatchingPeekRoom(room, sb);
     }
     
     /**
@@ -536,31 +635,36 @@ public class Floor {
     
     // ================== AFFICHAGE ==================
     
+    private StringBuilder sbToString(StringBuilder sb) {
+    	for (var y = 0; y < HEIGHT; y++) {
+        for (var x = 0; x < WIDTH; x++) {
+            var pos = new Coordonate(x, y);
+            var room = grid[y][x];
+            
+            if (pos.equals(playerPosition)) {
+                sb.append("🧑");
+            } else if (room == null) {
+                sb.append("██");
+            } else {
+                sb.append(room);
+            }
+            sb.append(" ");
+        }
+        sb.append("\n");
+    	}
+    	return sb;
+    }
+    
     @Override
     public String toString() {
         var sb = new StringBuilder();
         sb.append("══════════ ÉTAGE ").append(floorNumber).append(" ══════════\n");
         
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                var pos = new Coordonate(x, y);
-                var room = grid[y][x];
-                
-                if (pos.equals(playerPosition)) {
-                    sb.append("🧑");
-                } else if (room == null) {
-                    sb.append("██");
-                } else {
-                    sb.append(room);
-                }
-                sb.append(" ");
-            }
-            sb.append("\n");
-        }
+        
         
         sb.append("Position: ").append(playerPosition);
         sb.append(" | Salle: ").append(getCurrentRoom());
-        
+        sb = sbToString(sb);
         return sb.toString();
     }
     
@@ -571,7 +675,6 @@ public class Floor {
         var sb = new StringBuilder();
         sb.append(this.toString()).append("\n\n");
         sb.append("Connexions depuis ").append(playerPosition).append(":\n");
-        
         for (var dir : Direction.values()) {
             var newPos = playerPosition.move(dir);
             if (areConnected(playerPosition, newPos)) {
@@ -584,7 +687,6 @@ public class Floor {
                 sb.append("\n");
             }
         }
-        
         return sb.toString();
     }
 }

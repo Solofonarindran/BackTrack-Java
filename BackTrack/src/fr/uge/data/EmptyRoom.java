@@ -1,5 +1,7 @@
 package fr.uge.data;
 
+import java.util.Objects;
+
 public final class EmptyRoom implements Room{
   
 	private final boolean isAccessible;
@@ -24,6 +26,14 @@ public final class EmptyRoom implements Room{
 		return true;
 	};
 	    
+  public static boolean isEmptyRoom(Room room) {
+  	Objects.requireNonNull(room);
+  	return switch(room) {
+  		case EmptyRoom _-> true;
+  		default -> false;
+  	};
+  }
+  
 	public Room setVisited() {
 		return new EmptyRoom(this.isAccessible, true);
 	}

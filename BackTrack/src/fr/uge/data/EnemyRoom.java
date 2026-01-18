@@ -7,6 +7,11 @@ import fr.uge.model.Enemy;
 
 public record EnemyRoom(List<Enemy> enemies, boolean isVisited) implements Room{
 	
+  // Marquer la salle comme nettoyée (tous ennemis vaincus)
+  public EnemyRoom markCleared() {
+      return new EnemyRoom(enemies, true);
+  }
+  
 	@Override
 	public boolean isAccessible() {
 		return true;
@@ -17,7 +22,6 @@ public record EnemyRoom(List<Enemy> enemies, boolean isVisited) implements Room{
 	}
 	@Override
 	public final String toString() {
-	
 		return "👹";
 	}
   @Override
