@@ -31,8 +31,4 @@ public class TitleComponent implements Component{
        g.drawString(title, marginLeft, marginTop);
    }
    
-//   @Override
-//   public int[] getBounds() {
-//       return new int[]{x, y - 30, 400, 40};
-//   }
 }

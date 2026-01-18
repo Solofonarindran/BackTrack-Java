@@ -5,11 +5,13 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.Objects;
 
+import fr.uge.model.Actor;
+import fr.uge.model.Enemy;
 import fr.uge.model.Hero;
 
-public record StatsComponent(int marginLeft, int marginTop, Hero hero) implements Component{
+public record StatsComponent(int marginLeft, int marginTop, Actor actor) implements Component{
 	public StatsComponent {
-		Objects.requireNonNull(hero);
+		Objects.requireNonNull(actor);
 	}
 	
 	private void drawLevelIcon(Graphics2D g, int x, int y) {
@@ -30,26 +32,54 @@ public record StatsComponent(int marginLeft, int marginTop, Hero hero) implement
 		g.setFont(new Font("Arial", Font.BOLD, 16)); g.drawString("⚡  ", x , y); 
 	}
 	
+	
 	@Override
 	public void draw(Graphics2D g, Component component) {
-		var offsetX = 15; // décalage x 
-		var offsetY = 20; // décalage Y
-		var i = 20;
-		// offsetX ou offsetY s'incrémentent , on va voir à l'implémentation
-		drawLevelIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
-		g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Niveau     : " + hero.getLevel(), marginLeft +offsetX, marginTop + offsetY); offsetY += i;
 		
-		offsetX = 15; // retour à la position x initial
-		drawHeartIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
-		g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Vie           : " + hero.getHealthPoint(), marginLeft + offsetX, marginTop + offsetY);offsetY += i;
+		switch(actor) {
+			case Hero hero -> {
+				var offsetX = 15; // décalage x 
+				var offsetY = 20; // décalage Y
+				var i = 20;
+				// offsetX ou offsetY s'incrémentent , on va voir à l'implémentation
+				drawLevelIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
+				g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Niveau     : " + hero.getLevel(), marginLeft +offsetX, marginTop + offsetY); offsetY += i;
+				
+				offsetX = 15; // retour à la position x initial
+				drawHeartIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
+				g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Vie           : " + hero.getHealthPoint(), marginLeft + offsetX, marginTop + offsetY);offsetY += i;
+				
+				offsetX = 15; // retour à la position x initial
+				drawKeyIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
+				g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Clé           : " + hero.getKeys(), marginLeft + offsetX, marginTop + offsetY);offsetY += i;
+				
+				offsetX = 15; // retour à la position x initial
+				drawEnergyIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
+				g.setColor(Color.WHITE) ; g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Energy     : " + hero.getEnergy(), marginLeft + offsetX, marginTop + offsetY);	offsetY += i;
+				
+				offsetX = 15; // retour à la position x initial
+				drawEnergyIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
+				g.setColor(Color.WHITE) ; g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Protection     : " + hero.getProtection(), marginLeft + offsetX, marginTop + offsetY);	
+			}
+			
+			case Enemy enemy -> {
+				
+				var offsetY = 20;
+				var i = 20;
+				g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 12)); 
+				g.drawString("Nom : " + enemy.getType().getName(), marginLeft, marginTop + offsetY );	offsetY += i;
+				
+				g.setColor(Color.WHITE);
+				g.setFont(new Font("Arial", Font.BOLD, 12));
+				g.drawString(" Protection " + enemy.getArmor(), marginLeft, marginTop + offsetY);offsetY += i;
+				
+				
+				g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 12)); 
+				g.drawString("Prochain action     : " + enemy.getNextAction(), marginLeft, marginTop + offsetY);	offsetY += i;
+				
+			}
+		}
 		
-		offsetX = 15; // retour à la position x initial
-		drawKeyIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
-		g.setColor(Color.WHITE); g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Clé           : " + hero.getKeys(), marginLeft + offsetX, marginTop + offsetY);offsetY += i;
-		
-		offsetX = 15; // retour à la position x initial
-		drawEnergyIcon(g, marginLeft + offsetX, marginTop + offsetY);offsetX+=15;
-		g.setColor(Color.WHITE) ; g.setFont(new Font("Arial", Font.BOLD, 14)); g.drawString("Energy     : " + hero.getEnergy(), marginLeft + offsetX, marginTop + offsetY);	
 	}
 	
 	 @Override
