@@ -7,4 +7,5 @@ public interface Item {
 	default boolean rotate() {
 		return true;
 	}
+	
 }

@@ -21,16 +21,16 @@ public enum EnemyType {
   VAMPIRE("Vampire", 40, 3, 14, 70, "🧛"),
   
   // Boss (Fin d'étage)
-  BOSS_GOLEM("Golem de pierre", 80, 10, 20, 150, "🗿"),
-  BOSS_DRAGON("Dragon", 100, 8, 25, 200, "🐉"),
-  BOSS_DEMON("Démon", 90, 6, 30, 180, "😈");
+  BOSS_GOLEM("Golem de pierre", 50, 6, 3, 50, "🗿"),
+  BOSS_DRAGON("Dragon", 80, 10, 5, 100, "🐉"),
+  BOSS_DEMON("Démon", 90, 15, 8, 150, "😈");
 	
 	 private final String name;
    private final int maxHealth;
    private final int baseArmor;
    private final int baseDamage;
    private final int experienceReward;
-   private final String icon;
+
    private static final Random RANDOM = new Random();
    
    EnemyType(String name, int maxHealth, int baseArmor, int baseDamage, 
@@ -40,7 +40,6 @@ public enum EnemyType {
   	 this.baseArmor = baseArmor;
   	 this.baseDamage = baseDamage;
   	 this.experienceReward = experienceReward;
-  	 this.icon = icon;
   	 
    }
    

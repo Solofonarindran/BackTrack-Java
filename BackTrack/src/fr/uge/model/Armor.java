@@ -19,4 +19,25 @@ public record Armor(String name, ArmorType type, Rarity rarity, List<Coordonate>
 			throw new IllegalArgumentException("Point de défense négatif inacceptable");
 		}
 	}
+	
+	public static boolean isArmor(Item item) {
+		return switch(item) {
+			case Armor _ -> true;
+			default -> false;
+		};
+	}
+	
+	public static boolean isShield(Item item) {
+		return switch(item) {
+			case Armor a -> a.type().equals(ArmorType.SHIELD);
+			default -> false;
+		};
+	}
+	
+	public static boolean isClothing(Item item) {
+		return switch(item) {
+			case Armor a -> a.type().equals(ArmorType.CLOTHING);
+			default -> false;
+		};
+	}
 }

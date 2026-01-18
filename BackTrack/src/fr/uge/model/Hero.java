@@ -6,11 +6,14 @@ import fr.uge.data.BackPack;
 
 public final class Hero implements Actor{
 	// statistiques de base
-	private final int healthPoints; //Points de vie actuels
-	private final int maxHealthPoints; // Points de vie maximum
+	private int healthPoints; //Points de vie actuels
+	private int maxHealthPoints; // Points de vie maximum
 	private int level; //Niveau du Héros
 	private	int experience; // Points d'expérience actuels
-	private final int maxEnergy ;
+	private int maxEnergy ;
+
+//Champ
+	private int gold = 0;
 	
 	//Statistiques de combat
 	//Energie disponible (3 par tour en combat), 
@@ -19,7 +22,7 @@ public final class Hero implements Actor{
 	
   //On ne peut pas le mettre final ( méthod useMana) 
 	private int manaPoints; // Point mana disponibles
-	private final int protection; // POint de protection temporaire
+	private int protection; // POint de protection temporaire
 	
 	//inventaire
 	private final BackPack backPack ;
@@ -44,44 +47,47 @@ public final class Hero implements Actor{
 	
 	// Inflige des dégats au joueur
 	
-	public Hero takeDamage(int damage) { // On changera le paramètre damage par un item pour garder l'encapsulation
+	public int takeDamage(int damage) { // On changera le paramètre damage par un item pour garder l'encapsulation
 		if(damage < 0) {
 			throw new IllegalArgumentException("dégât doit être valeur positif");
 		}
-		var newProtection = 0;
+		
 		var restDamage = damage;	
 	  // si le Hero a encore de point de protection , il l'utilise
 		if(protection > 0) {
 			if(protection >= damage) {
-				newProtection = protection - damage;
-				return new Hero(healthPoints,maxHealthPoints,level,experience, maxEnergy, energy,manaPoints,newProtection,backPack,keys);
+				protection -= damage;
+				return 0;
 			}else {
 				restDamage = damage - protection;
 			}
 		}
 	  // si non le dégât s'implique directement au point de vie (healthPoint) de 
-		var newHealthPoints = Math.max(0, healthPoints - restDamage);
-		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
-	}
+		healthPoints = Math.max(0, healthPoints - restDamage);
+		return restDamage;
+}
 	
 	// méthode pour soigner le joueur 
-	public Hero heal(int amount) {
+	public int heal(int amount) {
 		if(amount < 0) {
 			throw new IllegalArgumentException("Le soin ne peut pas être négatif");
 		}
-		var newHealthPoints = Math.min(maxHealthPoints, healthPoints + amount);
-		return new Hero(newHealthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys);
+		var oldHealthPoints = healthPoints;
+		healthPoints = Math.min(maxHealthPoints, healthPoints + amount);
+		return healthPoints - oldHealthPoints;
 	}
 	
 	// méthode pour incrémenter la protection 
-	public Hero addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
-		var newProtection = protection + amount;
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, newProtection, backPack, keys);
+	public void addProtection(int amount) { // On changera le paramètre amount par un item pour garder l'encapsulation
+		if (amount > 0 ) {
+			protection += amount;
+		}
+		
 	}
 	
 	// réinitialisé la protection
-	public Hero resetProtection() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, 0, backPack, keys);
+	public void resetProtection() {
+		protection = 0;
 	}
 	
 	
@@ -98,10 +104,15 @@ public final class Hero implements Actor{
 	
 	//réinitialise le point de l'energy
 	// en valeur max du point de l'energy
-	public Hero resetEnergy() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, maxEnergy, manaPoints, protection, backPack, keys);
+	public void resetEnergy() {
+		energy = maxEnergy;
 	}
 	
+
+	public int getExperienceToNextLevel() {
+	    return level * 100;  // Niveau 1 = 100 XP, Niveau 2 = 200 XP, etc.
+	}
+
 	public boolean useMana(int cost) {
 		if(manaPoints >= cost) {
 			manaPoints-= cost;
@@ -111,9 +122,10 @@ public final class Hero implements Actor{
 	}
 	
 	//incrémenter la valeur de mana
-	public Hero increaseMana(int amount) {
-		var newManaPoints = manaPoints + amount;
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, newManaPoints, protection, backPack, keys);
+	public void increaseMana(int amount) {
+		if (amount >0) {
+			manaPoints += amount;
+		}
 	}
 	
 	//Exemple : niveau 2 = 100 XP, niveau 3 = 200 XP...
@@ -121,26 +133,107 @@ public final class Hero implements Actor{
 		return level * 100; 
 	}
 	
-	//Monter de niveau
-	private void levelUp() {
-		experience -= getExperienceForNextLevel();
-		level ++;
-		
-		System.out.println("🎉 NIVEAU SUPÉRIEUR ! Vous êtes maintenant niveau " + level);
-    System.out.println("💼 Votre sac à dos peut être agrandi de 3-4 cases !");
-	}
+	
 	// xp point d'expérience qu'on a
 	
 	public void gainExperience(int xp) {
 		if(xp < 0) {
 			throw new IllegalArgumentException(" expérience doit toujours positive");
 		}
+		
 		experience += xp;
 		while(experience >= getExperienceForNextLevel()) {
+			experience -= getExperienceToNextLevel();
 			levelUp();
 		}
 	}
 	
+	
+	//Méthodes
+	public int getGold() {
+	   return gold;
+	}
+	
+	public void addGold(int amount) {
+	   if (amount > 0) {
+	       gold += amount;
+	   }
+	}
+	
+	public boolean spendGold(int amount) {
+	   if (amount > 0 && gold >= amount) {
+	       gold -= amount;
+	       return true;
+	   }
+	   return false;
+	}
+	
+		public void levelUp() {
+	    level++;
+	    
+	    // Augmenter les stats
+	    maxHealthPoints += 5;
+	    maxEnergy++;
+	    
+	    // Soigner complètement
+	    healthPoints = maxHealthPoints;
+	    energy = maxEnergy;
+	    
+	    // Déverrouiller des cases du sac
+	    int newSlots = getNewSlotsForLevel(level);
+	    int unlocked = backPack.unlockNewSlots(newSlots);
+	    
+	    System.out.println("★ NIVEAU " + level + " !");
+	    System.out.println("  +5 PV max (" + maxHealthPoints + ")");
+	    System.out.println("  +1 Énergie max (" + maxEnergy + ")");
+	    System.out.println("  +" + unlocked + " cases de sac déverrouillées");
+	}
+
+	private int getNewSlotsForLevel(int level) {
+	  return switch (level) {
+	      case 2, 3 -> 2;
+	      case 4, 5 -> 3;
+	      default -> level > 5 ? 3 : 0;
+	  };
+	}
+	//==================== MALÉDICTION ====================
+
+//Champ (ajouter avec les autres champs)
+private int curseRefusalCount = 0;
+
+//Refuser une malédiction → prend K dégâts (K = nombre de refus)
+public int refuseCurse() {
+   curseRefusalCount++;
+   int damage = curseRefusalCount;
+   takeDamage(damage);
+   return damage;
+}
+
+	//Accepter une malédiction (la placer dans le sac)
+	public boolean acceptCurse(Curse curse, Coordonate position) {
+	   // Vérifier si la position est valide
+	   if (!backPack.canPlaceCurse(curse, position)) {
+	       return false;
+	   }
+	   
+	   // Supprimer les items en dessous
+	   backPack.removeItemsAt(curse.references(), position);
+	   
+	   // Placer la malédiction
+	   backPack.placeCurse(curse, position);
+	   
+	   return true;
+	}
+	
+	//Reset le compteur (nouveau combat ou nouvel étage)
+	public void resetCurseRefusalCount() {
+	   curseRefusalCount = 0;
+	}
+	
+	//Getter
+	public int getCurseRefusalCount() {
+	   return curseRefusalCount;
+	}
   // Getters
 	
 	@Override
@@ -166,10 +259,27 @@ public final class Hero implements Actor{
 	}
 	
 	//ajout du clef
-	public Hero addKey() {
-		return new Hero(healthPoints, maxHealthPoints, level, experience, maxEnergy, energy, manaPoints, protection, backPack, keys ++ );
+	public void  addKey() {
+		keys ++;
 	}
 	
+	public void addKeys(int count) {
+		if(count < 0) {
+			throw new IllegalArgumentException();
+		}
+		keys += count; 
+	}
+	
+	public boolean hasKey() {
+		return keys > 0;
+	}
+	 public boolean isAlive() {
+     return healthPoints > 0;
+	 }
+ 
+	 public boolean isDead() {
+	     return healthPoints <= 0;
+	 }
 	@Override
 	public String toString() {
 		var str = "\n========== STATISTIQUES DU HÉROS ==========" +

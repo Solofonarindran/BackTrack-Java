@@ -205,26 +205,26 @@ public final class Enemy implements Actor{
          if (roll < 0.5) {
              return CombatAction.action(CombatActionType.ATTACK,baseDamage);
          } else if (roll < 0.8) {
-             return CombatAction.action(CombatActionType.DEFEND,10);
+             return CombatAction.action(CombatActionType.DEFEND,5);
          }
-         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 5);
+         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 3);
      }
      
      // Phase 2 (33-66% HP) : Plus agressif
      if (phase > 0.33) {
          if (roll < 0.4) {
-             return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 8);
+             return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 5);
          } else if (roll < 0.7) {
              return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
          } else if (roll < 0.85) {
              return CombatAction.action(CombatActionType.CURSE,0);
          }
-         return CombatAction.action(CombatActionType.DEFEND,12);
+         return CombatAction.action(CombatActionType.DEFEND,6);
      }
      
      // Phase 3 (< 33% HP) : Mode rage
      if (roll < 0.5) {
-         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 12);
+         return CombatAction.action(CombatActionType.HEAVY_ATTACK,baseDamage + 7);
      } else if (roll < 0.8) {
          return CombatAction.action(CombatActionType.MULTI_ATTACK,baseDamage / 2);
      }
@@ -278,6 +278,24 @@ public final class Enemy implements Actor{
        
        healthPoints = Math.max(0, healthPoints - actualDamage);
        return actualDamage;
+   }
+   
+   public int getExperienceValue() {
+     return switch (type) {
+         case SLIME -> 10;
+         case RAT -> 8;
+         case BAT -> 8;
+         case GOBLIN -> 15;
+         case SKELETON -> 20;
+         case ORC -> 25;
+         case WOLF -> 18;
+         case TROLL -> 30;
+         case DARK_MAGE -> 35;
+         case VAMPIRE -> 35;
+         case BOSS_GOLEM -> 100;
+         case BOSS_DRAGON -> 150;
+         case BOSS_DEMON -> 200;
+     };
    }
    
    /**
@@ -408,6 +426,14 @@ public final class Enemy implements Actor{
 	    return healthPoints <= 0;
 	}
 	
+	/**
+  * Soigne l'ennemi
+  */
+ public void heal(int amount) {
+	 if (amount > 0) {
+	     healthPoints = Math.min(maxHealthPoints, healthPoints + amount);
+	 }
+ }
 	public boolean isBoss() {
 	    return type.isBoss();
 	}
