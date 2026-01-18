@@ -42,6 +42,13 @@ public record Curse(
         references = List.copyOf(references);
     }
     
+    public static boolean isCurse(Item item) {
+    	Objects.requireNonNull(item);
+    	return switch(item) {
+    		case Curse _ ->true;
+    		default -> false;
+    	};
+    }
     @Override
     public List<Coordonate> references() {
         return references;
