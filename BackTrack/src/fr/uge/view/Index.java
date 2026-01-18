@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 import com.github.forax.zen.ApplicationContext;
 
+import fr.uge.data.BackPack;
 import fr.uge.model.Enemy;
 import fr.uge.model.Hero;
 
@@ -37,8 +38,7 @@ public class Index {
 		return background;
 	}
 		
-
-	public void body(ApplicationContext context, Graphics2D g, Hero hero, Enemy enemy) {
+	public void body(ApplicationContext context, Graphics2D g, Hero hero, Enemy enemy,BackPack bag) {
 		try {
 	
 			// fond de la page 
@@ -47,15 +47,7 @@ public class Index {
 			//Grand title
 			new TitleComponent(xResolution, yResolution, "⚔️ BACKPACK HERO ⚔️", Color.WHITE).draw(g,null);
 			
-			// Panneau statistique
-			new PanelComponent(20, 20,150, 120, "Stat", Color.gray, Color.WHITE).draw(g, new StatsComponent(40, 40, hero));
-			
-		  
-			//Hero
-		  ActorPortrayalComponent.create(profil("images/hero.jpeg"),xResolution, yResolution, hero).draw(g, null);
-		  
-		  // Enemy
-		  ActorPortrayalComponent.create(profil("images/enemies.png"),xResolution, yResolution, enemy).draw(g, null);
+			// new CombatView(yResolution, xResolution).draw(g, bag, hero);
 		  
 		  ButtonComponent.create(AlignItem.TOPRIGHT, xResolution, yResolution, "carte", Color.WHITE, null).draw(g, null);
 			
@@ -64,6 +56,5 @@ public class Index {
 			e.printStackTrace();
 		}
 	}
-	
 
 }

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +58,7 @@ public class ButtonComponent implements Component{
 	 var height = (int) (yResolution * 0.03);
 	 return new ButtonComponent(x, y, width, height, text, color, onClick);
  }
+ 
  public void setHovered(boolean hovered) {
      this.hovered = hovered;
  }
