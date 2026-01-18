@@ -157,7 +157,12 @@ public final class MerchantRoom implements Room {
         return true;
     }
     
-
+    public static boolean isMerchantRoom(Room room) {
+    	return switch(room) {
+    		case MerchantRoom _->true;
+    		default -> false;
+    	};
+    }
     @Override
     public Room setVisited() {
     	// TODO Auto-generated method stub

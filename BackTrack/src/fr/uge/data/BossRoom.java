@@ -63,6 +63,13 @@ public record BossRoom(
     	return isDefeated ? "💀" : "👑";	
     }
     
+    public static BossRoom isBossRoom(Room room) {
+    	return switch(room) {
+    		case BossRoom br -> br;
+    		default -> throw new IllegalArgumentException();
+    	};
+    }
+    
     public boolean defeated() {
     	return isDefeated;
     }

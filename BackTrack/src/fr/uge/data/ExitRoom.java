@@ -2,20 +2,22 @@ package fr.uge.data;
 
 
 public final class ExitRoom implements Room{
-	private final int targetFloor;
+	private final int nextFloor;
 	private boolean used;
 	
 	public ExitRoom () {
-		this.targetFloor = -1;
+		this.nextFloor = 1;
 		this.used = false;
 	}
-	
+	public int getNextFloor() {
+    return nextFloor;
+ }
   public ExitRoom(int targetFloor) {
-    this.targetFloor = targetFloor;
+    this.nextFloor = targetFloor;
     this.used = false;
   }
   public ExitRoom(int targetFloor, boolean visited) {
-    this.targetFloor = targetFloor;
+    this.nextFloor = targetFloor;
     this.used =  visited;
   }
   
@@ -30,7 +32,7 @@ public final class ExitRoom implements Room{
   
 	@Override
 	public ExitRoom setVisited() {
-		return new ExitRoom(this.targetFloor,true);
+		return new ExitRoom(this.nextFloor,true);
 	}
   @Override
   public String getDescription() {
